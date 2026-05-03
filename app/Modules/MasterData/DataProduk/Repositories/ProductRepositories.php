@@ -70,33 +70,54 @@ class ProductRepositories
             ])
             ->latest('created_at');
 
-        if (! empty($filters['search'])) {
-            $search = trim((string) $filters['search']);
+        return $this->applyFilters($query, $filters);
+    }
 
-            $query->where(function (Builder $builder) use ($search): void {
-                $builder->where('product_name', 'like', "%{$search}%")
-                    ->orWhereHas('category', function (Builder $categoryQuery) use ($search): void {
-                        $categoryQuery->where('category_name', 'like', "%{$search}%");
-                    })
-                    ->orWhereHas('unit', function (Builder $unitQuery) use ($search): void {
-                        $unitQuery->where('unit_code', 'like', "%{$search}%")
-                            ->orWhere('unit_name', 'like', "%{$search}%");
-                    });
-            });
+    private function applyFilters(Builder $query, array $filters): Builder
+    {
+        $search = $this->normalizeString($filters['search'] ?? null);
+        $categoryId = $this->normalizeString($filters['category_id'] ?? null);
+        $unitId = $this->normalizeString($filters['unit_id'] ?? null);
+        $isActive = $this->normalizeNullableBool($filters['is_active'] ?? null);
+
+        return $query
+            ->when($search !== null, fn (Builder $q): Builder => $this->applySearch($q, $search))
+            ->when($categoryId !== null, fn (Builder $q): Builder => $q->where('category_id', $categoryId))
+            ->when($unitId !== null, fn (Builder $q): Builder => $q->where('unit_id', $unitId))
+            ->when($isActive !== null, fn (Builder $q): Builder => $q->where('is_active', $isActive));
+    }
+
+    private function applySearch(Builder $query, string $search): Builder
+    {
+        return $query->where(function (Builder $builder) use ($search): void {
+            $builder->where('product_name', 'like', "%{$search}%")
+                ->orWhereHas('category', function (Builder $categoryQuery) use ($search): void {
+                    $categoryQuery->where('category_name', 'like', "%{$search}%");
+                })
+                ->orWhereHas('unit', function (Builder $unitQuery) use ($search): void {
+                    $unitQuery->where('unit_code', 'like', "%{$search}%")
+                        ->orWhere('unit_name', 'like', "%{$search}%");
+                });
+        });
+    }
+
+    private function normalizeString(mixed $value): ?string
+    {
+        if ($value === null) {
+            return null;
         }
 
-        if (! empty($filters['category_id'])) {
-            $query->where('category_id', (string) $filters['category_id']);
+        $value = trim((string) $value);
+
+        return $value === '' ? null : $value;
+    }
+
+    private function normalizeNullableBool(mixed $value): ?bool
+    {
+        if ($value === null || $value === '') {
+            return null;
         }
 
-        if (! empty($filters['unit_id'])) {
-            $query->where('unit_id', (string) $filters['unit_id']);
-        }
-
-        if (array_key_exists('is_active', $filters) && $filters['is_active'] !== null && $filters['is_active'] !== '') {
-            $query->where('is_active', filter_var($filters['is_active'], FILTER_VALIDATE_BOOL, FILTER_NULL_ON_FAILURE) ?? false);
-        }
-
-        return $query;
+        return filter_var($value, FILTER_VALIDATE_BOOL, FILTER_NULL_ON_FAILURE) ?? false;
     }
 }

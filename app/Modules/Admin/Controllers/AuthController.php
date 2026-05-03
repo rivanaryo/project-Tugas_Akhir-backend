@@ -98,12 +98,10 @@ class AuthController extends Controller
 
     private function makeAccessTokenCookie(string $token): Cookie
     {
-        $minutes = max(1, (int) ceil($this->jwtTokenService->getTtlInSeconds() / 60));
-
-        return cookie(
+        return Cookie::create(
             (string) config('jwt.cookie_name'),
             $token,
-            $minutes,
+            0,
             (string) config('jwt.cookie_path', '/'),
             config('jwt.cookie_domain') ?: null,
             (bool) config('jwt.cookie_secure', false),

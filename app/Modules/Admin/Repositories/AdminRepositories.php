@@ -70,16 +70,22 @@ class AdminRepositories
             ->newQuery()
             ->latest('created_at');
 
-        if (! empty($filters['search'])) {
-            $search = trim((string) $filters['search']);
-            $query->where('email', 'like', "%{$search}%");
-        }
+        return $this->applyFilters($query, $filters);
+    }
 
-        if (! empty($filters['role'])) {
-            $query->where('role', (string) $filters['role']);
-        }
+    private function applyFilters(Builder $query, array $filters): Builder
+    {
+        $search = $this->normalizeString($filters['search'] ?? null);
+        $role = $this->normalizeString($filters['role'] ?? null);
 
-        return $query;
+        return $query
+            ->when($search !== null, fn (Builder $q): Builder => $this->applySearch($q, $search))
+            ->when($role !== null, fn (Builder $q): Builder => $q->where('role', $role));
+    }
+
+    private function applySearch(Builder $query, string $search): Builder
+    {
+        return $query->where('email', 'like', "%{$search}%");
     }
 
     private function preparePayload(array $payload): array
@@ -89,6 +95,17 @@ class AdminRepositories
         }
 
         return array_filter($payload, static fn ($value): bool => $value !== null);
+    }
+
+    private function normalizeString(mixed $value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        $value = trim((string) $value);
+
+        return $value === '' ? null : $value;
     }
 
 }

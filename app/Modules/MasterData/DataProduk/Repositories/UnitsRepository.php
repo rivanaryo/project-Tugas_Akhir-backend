@@ -62,19 +62,44 @@ class UnitsRepository
             ->newQuery()
             ->latest('created_at');
 
-        if (! empty($filters['search'])) {
-            $search = trim((string) $filters['search']);
+        return $this->applyFilters($query, $filters);
+    }
 
-            $query->where(function (Builder $builder) use ($search): void {
-                $builder->where('unit_code', 'like', "%{$search}%")
-                    ->orWhere('unit_name', 'like', "%{$search}%");
-            });
+    private function applyFilters(Builder $query, array $filters): Builder
+    {
+        $search = $this->normalizeString($filters['search'] ?? null);
+        $isActive = $this->normalizeNullableBool($filters['is_active'] ?? null);
+
+        return $query
+            ->when($search !== null, fn (Builder $q): Builder => $this->applySearch($q, $search))
+            ->when($isActive !== null, fn (Builder $q): Builder => $q->where('is_active', $isActive));
+    }
+
+    private function applySearch(Builder $query, string $search): Builder
+    {
+        return $query->where(function (Builder $builder) use ($search): void {
+            $builder->where('unit_code', 'like', "%{$search}%")
+                ->orWhere('unit_name', 'like', "%{$search}%");
+        });
+    }
+
+    private function normalizeString(mixed $value): ?string
+    {
+        if ($value === null) {
+            return null;
         }
 
-        if (array_key_exists('is_active', $filters) && $filters['is_active'] !== null && $filters['is_active'] !== '') {
-            $query->where('is_active', filter_var($filters['is_active'], FILTER_VALIDATE_BOOL, FILTER_NULL_ON_FAILURE) ?? false);
+        $value = trim((string) $value);
+
+        return $value === '' ? null : $value;
+    }
+
+    private function normalizeNullableBool(mixed $value): ?bool
+    {
+        if ($value === null || $value === '') {
+            return null;
         }
 
-        return $query;
+        return filter_var($value, FILTER_VALIDATE_BOOL, FILTER_NULL_ON_FAILURE) ?? false;
     }
 }

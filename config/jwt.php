@@ -30,7 +30,8 @@ return [
     'cookie_domain' => $envNullable('JWT_COOKIE_DOMAIN', env('SESSION_DOMAIN')),
     'cookie_secure' => $envBool('JWT_COOKIE_SECURE', env('APP_ENV') === 'production'),
     'cookie_http_only' => $envBool('JWT_COOKIE_HTTP_ONLY', true),
-    'cookie_same_site' => env('JWT_COOKIE_SAME_SITE', 'lax'),
+    'cookie_same_site' => env('JWT_COOKIE_SAME_SITE', env('APP_ENV') === 'production' ? 'strict' : 'lax'),
+    'cookie_expires_ms' => (int) env('JWT_COOKIE_EXPIRES', 0),
     'revoke_enabled' => $envBool('JWT_REVOKE_ENABLED', true),
     'revoke_key_prefix' => env('JWT_REVOKE_KEY_PREFIX', 'jwt:revoked:'),
 ];

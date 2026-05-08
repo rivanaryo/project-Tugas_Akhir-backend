@@ -21,6 +21,8 @@ class PurchaseOrderItems extends Model
         'pricelist_id',
         'quantity',
         'unit_price',
+        'tax_rate',
+        'tax_amount',
         'total_price',
     ];
     protected $casts = [

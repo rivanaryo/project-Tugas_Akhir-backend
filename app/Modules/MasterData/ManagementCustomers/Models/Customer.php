@@ -4,6 +4,8 @@ namespace App\Modules\MasterData\ManagementCustomers\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use App\Modules\Sales\SalesOrder\Models\SalesOrder;
+use App\Modules\Sales\SalesDelivery\Models\SalesDelivery;
 
 class Customer extends Model
 {
@@ -19,6 +21,16 @@ class Customer extends Model
         'address',
         'is_active',
     ];
+
+    public function salesOrders()
+    {
+        return $this->hasMany(SalesOrder::class, 'customer_id');
+    }
+
+    public function salesDeliveries()
+    {
+        return $this->hasMany(SalesDelivery::class, 'customer_id');
+    }
 
     
 }

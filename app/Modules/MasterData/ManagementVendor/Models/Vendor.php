@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use App\Modules\MasterData\ManagementPricelist\Models\Pricelist;
 use App\Modules\MasterData\DataProduk\Models\Product;
 use App\Modules\Purchase\PurchaseOrder\Models\PurchaseOrder;
+use App\Modules\Purchase\VendorPayment\Models\VendorPayment;
 
 
 class Vendor extends Model
@@ -36,6 +37,11 @@ class Vendor extends Model
     public function purchaseOrders()
     {
         return $this->hasMany(PurchaseOrder::class, 'vendor_id');
+    }
+
+    public function vendorPayments()
+    {
+        return $this->hasMany(VendorPayment::class, 'vendor_id');
     }
 
 }

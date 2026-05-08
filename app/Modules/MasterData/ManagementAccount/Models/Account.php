@@ -4,6 +4,7 @@ namespace App\Modules\MasterData\ManagementAccount\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use App\Modules\Purchase\VendorPayment\Models\VendorPayment;
 
 class Account extends Model
 {
@@ -19,4 +20,11 @@ class Account extends Model
         'bank_name',
         'is_active',
     ];
+
+
+    public function vendorPayments()
+    {
+        return $this->hasMany(VendorPayment::class, 'account_id');
+    }
+
 }

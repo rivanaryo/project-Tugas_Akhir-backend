@@ -26,7 +26,9 @@ class UpdatePurchaseOrderItemsRequest extends FormRequest
             'purchase_order_id' => ['sometimes', 'required', 'uuid', 'exists:purchase_order,id'],
             'pricelist_id' => ['sometimes', 'required', 'uuid', 'exists:m_pricelists,id'],
             'quantity' => ['sometimes', 'required', 'integer'],
+            'tax_rate' => ['sometimes', 'nullable', 'numeric', 'min:0', 'max:100', 'decimal:0,2'],
             'unit_price' => ['sometimes', 'nullable', 'numeric', 'decimal:0,2'],
+            'tax_amount' => ['sometimes', 'nullable', 'numeric', 'decimal:0,2'],
             'total_price' => ['sometimes', 'nullable', 'numeric', 'decimal:0,2'],
         ];
     }

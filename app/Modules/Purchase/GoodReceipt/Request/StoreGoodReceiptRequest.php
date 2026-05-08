@@ -24,11 +24,14 @@ class StoreGoodReceiptRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'gr_number' => 'required|string|max:255',
-            'purchase_order_id' => 'required|string|max:255',
-            'vendor_id' => 'required|string|max:255',
+            'gr_number' => 'required|string|max:255|unique:good_receipt,gr_number',
+            'purchase_order_id' => 'required|uuid|exists:purchase_order,id',
+            'vendor_id' => 'required|uuid|exists:m_vendor,id',
             'receipt_date' => 'required|date_format:Y-m-d',
             'status' => 'required|string|max:255',
+            'items' => 'nullable|array',
+            'items.*.purchase_order_item_id' => 'required_with:items|uuid|exists:purchase_order_items,id',
+            'items.*.qty_received' => 'required_with:items|numeric|min:1',
         ];
     }
 

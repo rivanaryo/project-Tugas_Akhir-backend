@@ -27,7 +27,9 @@ class StorePurchaseOrderItemsRequest extends FormRequest
             'purchase_order_id' => 'required|uuid|exists:purchase_order,id',
             'pricelist_id' => 'required|uuid|exists:m_pricelists,id',
             'quantity' => 'required|integer',
+            'tax_rate' => ['nullable', 'numeric', 'min:0', 'max:100', 'decimal:0,2'],
             'unit_price' => ['nullable', 'numeric', 'decimal:0,2'],
+            'tax_amount' => ['nullable', 'numeric', 'decimal:0,2'],
             'total_price' => ['nullable', 'numeric', 'decimal:0,2'],
         ];
     }

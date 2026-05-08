@@ -13,6 +13,7 @@ class GoodReceiptDTO
         public readonly ?string $vendor_id = null,
         public readonly ?string $receipt_date = null,
         public readonly ?string $status = null,
+        public readonly array $items = [],
     ) {
     }
     
@@ -24,6 +25,7 @@ class GoodReceiptDTO
             $request->vendor_id,
             $request->receipt_date,
             $request->status,
+            $request->items ?? [],
         );
     }
 
@@ -35,6 +37,7 @@ class GoodReceiptDTO
             $request->vendor_id,
             $request->receipt_date,
             $request->status,
+            $request->items ?? [],
         );
     }
 
@@ -46,6 +49,7 @@ class GoodReceiptDTO
             'vendor_id' => $this->vendor_id,
             'receipt_date' => $this->receipt_date,
             'status' => $this->status,
+            'items' => $this->items,
         ];
     }
     

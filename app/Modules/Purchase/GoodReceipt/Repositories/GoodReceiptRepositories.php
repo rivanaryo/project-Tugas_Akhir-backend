@@ -100,16 +100,58 @@ class GoodReceiptRepositories
     public function create(array $payload): GoodReceipt
     {
         return DB::transaction(function () use ($payload): GoodReceipt {
-            return $this->model->create($this->preparePayload($payload));
+            $items = $payload['items'] ?? [];
+            unset($payload['items']);
+
+            $goodReceipt = $this->model->create($this->preparePayload($payload));
+
+            foreach ($items as $item) {
+                // Ambil data dari purchase order item untuk sinkronisasi product/pricelist
+                $poItem = DB::table('purchase_order_items')->where('id', $item['purchase_order_item_id'])->first();
+                
+                if ($poItem) {
+                    $goodReceipt->items()->create([
+                        'purchase_order_item_id' => $item['purchase_order_item_id'],
+                        'qty_received' => $item['qty_received'],
+                        'product_id' => $poItem->product_id,
+                        'pricelist_id' => $poItem->pricelist_id,
+                    ]);
+                }
+            }
+
+            return $goodReceipt->load('items');
         });
     }
 
     public function update(int|string $id, array $payload): GoodReceipt
     {
         return DB::transaction(function () use ($id, $payload): GoodReceipt {
+            $items = $payload['items'] ?? [];
+            unset($payload['items']);
+
             $goodReceipt = $this->findOrFail($id);
             $goodReceipt->update($this->preparePayload($payload));
-            return $goodReceipt->fresh() ?? $goodReceipt;
+
+            if (!empty($items)) {
+                // Sederhana: Hapus yang lama dan masukkan yang baru jika items dikirim
+                // Atau bisa juga logic sync yang lebih kompleks
+                $goodReceipt->items()->delete();
+                
+                foreach ($items as $item) {
+                    $poItem = DB::table('purchase_order_items')->where('id', $item['purchase_order_item_id'])->first();
+                    
+                    if ($poItem) {
+                        $goodReceipt->items()->create([
+                            'purchase_order_item_id' => $item['purchase_order_item_id'],
+                            'qty_received' => $item['qty_received'],
+                            'product_id' => $poItem->product_id,
+                            'pricelist_id' => $poItem->pricelist_id,
+                        ]);
+                    }
+                }
+            }
+
+            return $goodReceipt->fresh('items') ?? $goodReceipt;
         });
     }
 

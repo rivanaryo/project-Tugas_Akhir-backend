@@ -8,10 +8,10 @@ use App\Modules\Sales\SalesOrder\Request\UpdateSalesOrderRequest;
 class SalesOrderDTO
 {
     public function __construct(
-        public readonly ?string $order_number,
-        public readonly string $customer_id,
-        public readonly ?string $order_date,
-        public readonly int $status,
+        public readonly ?string $order_number = null,
+        public readonly ?string $customer_id = null,
+        public readonly ?string $order_date = null,
+        public readonly ?string $status = null,
     ) {
     }
 
@@ -20,10 +20,10 @@ class SalesOrderDTO
     {
         $validated = $request->validated();
         return new self(
-            order_number: $validated['order_number'],
-            customer_id: $validated['customer_id'],
-            order_date: $validated['order_date'],
-            status: $validated['status'],
+            order_number: $validated['order_number'] ?? null,
+            customer_id: $validated['customer_id'] ?? null,
+            order_date: $validated['order_date'] ?? null,
+            status: $validated['status'] ?? null,
         );
     }
 
@@ -32,9 +32,9 @@ class SalesOrderDTO
         $validated = $request->validated();
         return new self(
             order_number: $validated['order_number'] ?? null,
-            customer_id: $validated['customer_id'],
-            order_date: $validated['order_date'],
-            status: $validated['status'],
+            customer_id: $validated['customer_id'] ?? null,
+            order_date: $validated['order_date'] ?? null,
+            status: $validated['status'] ?? null,
         );
     }
 

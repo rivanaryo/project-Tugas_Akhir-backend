@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Modules\MasterData\ManagementCustomers\Models\Customer;
 use App\Modules\Sales\SalesOrder\Reference\Models\SalesOrderItems;
 use App\Modules\Sales\SalesDelivery\Models\SalesDelivery;
+use App\Modules\Sales\Invoice\Models\Invoice;
 
 class SalesOrder extends Model
 {
@@ -46,6 +47,11 @@ class SalesOrder extends Model
         return $this->hasMany(SalesDelivery::class, 'sales_order_id');
     }
 
+    public function invoices()
+    {
+        return $this->hasMany(Invoice::class, 'sales_order_id');
+    }
+
     /**
      * Calculate subtotal, total tax, and grand total based on order items
      */
@@ -68,7 +74,7 @@ class SalesOrder extends Model
     /**
     * Update order status
     */
-    public function updateStatus(int $status): bool
+    public function updateStatus(string $status): bool
     {
         $this->status = $status;
         return $this->save();

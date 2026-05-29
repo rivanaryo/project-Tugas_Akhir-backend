@@ -33,6 +33,7 @@ class StoreVendorPaymentRequest extends FormRequest
             'tax_rate' => ['nullable', 'numeric', 'min:0', 'max:100', 'decimal:0,2'],
             'tax_amount' => 'prohibited',
             'account_id' => 'required|exists:m_accounts,id',
+            'status' => 'nullable|in:paid,unpaid',
         ];
     }
 

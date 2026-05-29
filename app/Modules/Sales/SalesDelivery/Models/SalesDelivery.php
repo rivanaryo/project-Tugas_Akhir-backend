@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use App\Modules\Sales\SalesDelivery\Reference\Models\SalesDeliveryItems;
 use App\Modules\MasterData\ManagementCustomers\Models\Customer;
 use App\Modules\Sales\SalesOrder\Models\SalesOrder;
+use App\Modules\Sales\SalesOrder\Reference\Models\SalesOrderItems;
 
 class SalesDelivery extends Model
 {
@@ -34,6 +35,8 @@ class SalesDelivery extends Model
     public function salesOrder() {
         return $this->belongsTo(SalesOrder::class, 'sales_order_id');
     }
+
+
 
 
 

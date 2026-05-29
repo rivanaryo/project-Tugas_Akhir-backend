@@ -18,14 +18,15 @@ class SalesDeliveryController extends Controller
     ) {
     }
 
-    public function index() : JsonResponse
+    public function index(Request $request) : JsonResponse
     {
-        $salesDeliveries = $this->repo->all()->load('items');
+        $perPage = (int) $request->get('per_page', 15);
+        $data = $this->repo->paginate($request->all(), $perPage);
 
         return response()->json([
             'success' => true,
             'message' => 'Sales deliveries retrieved successfully',
-            'data' => $salesDeliveries,
+            'data' => $data,
         ]);
     }
 
@@ -43,7 +44,7 @@ class SalesDeliveryController extends Controller
 
     public function show(string $id) : JsonResponse
     {
-        $salesDelivery = $this->repo->findById($id)->load('items');
+        $salesDelivery = $this->repo->findById($id)->load(['items.salesOrderItem.product', 'salesOrder', 'customer']);
         if (!$salesDelivery) {
             return response()->json([
                 'success' => false,

@@ -23,10 +23,10 @@ class UpdateSalesOrderRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'order_number' => 'required|unique:sales_order',
-            'customer_id' => 'required|exists:m_customer,id',
-            'order_date' => 'nullable|date',
-            'status' => 'required|in:0,1,2',
+            'order_number' => 'sometimes|string|unique:sales_order',
+            'customer_id' => 'sometimes|string|exists:m_customer,id',
+            'order_date' => 'sometimes|date',
+            'status' => 'sometimes|in:0,1,2',
             'subtotal' => 'prohibited',
             'total_tax' => 'prohibited',
             'grand_total' => 'prohibited',

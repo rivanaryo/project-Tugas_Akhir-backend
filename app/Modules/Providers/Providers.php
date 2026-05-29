@@ -7,6 +7,7 @@ use Illuminate\Support\ServiceProvider;
 use App\Modules\MasterData\MasterDataServiceProvider;
 use App\Modules\Purchase\PurchaseServiceProvider;
 use App\Modules\Sales\SalesServiceProvider;
+use App\Modules\Dashboard\DashboardServiceProvider;
 
 class Providers extends ServiceProvider
 {
@@ -19,7 +20,7 @@ class Providers extends ServiceProvider
         $this->app->register(MasterDataServiceProvider::class);
         $this->app->register(PurchaseServiceProvider::class);
         $this->app->register(SalesServiceProvider::class);
-
+        $this->app->register(DashboardServiceProvider::class);
         // Daftarkan provider modul lain di sini:
         // $this->app->register(BankingServiceProvider::class);
         // $this->app->register(InventoryServiceProvider::class);

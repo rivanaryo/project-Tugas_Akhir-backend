@@ -60,30 +60,33 @@ class SalesDeliveryRepositories
 
     private function baseQuery(array $filters = []): Builder
     {
-        $query = $this->model->newQuery()->with(['customer', 'salesOrder']);
+        $query = $this->model->newQuery()
+            ->with(['customer', 'salesOrder', 'items.salesOrderItem.product'])
+            ->latest('created_at');
 
         return $this->applyFilters($query, $filters);
     }
 
     private function applyFilters(Builder $query, array $filters): Builder
     {
-        if (isset($filters['q']) || isset($filters['search'])) {
-            $search = $filters['q'] ?? $filters['search'];
-            $query = $this->applySearch($query, $search);
-        }
+        $search = $this->normalizeString($filters['q'] ?? ($filters['search'] ?? null));
+        $customerId = $this->normalizeString($filters['customer_id'] ?? null);
+        $salesOrderId = $this->normalizeString($filters['sales_order_id'] ?? null);
 
-        return $query;
+        return $query
+            ->when($customerId, fn (Builder $q) => $q->where('customer_id', $customerId))
+            ->when($salesOrderId, fn (Builder $q) => $q->where('sales_order_id', $salesOrderId))
+            ->when($search, fn (Builder $q) => $this->applySearch($q, $search));
     }
 
     private function applySearch(Builder $query, string $search): Builder
     {
-        return $query->where(function (Builder $query) use ($search) {
-            return $query
-                ->where('delivery_number', 'like', "%{$search}%")
-                ->orWhereHas('customer', fn (Builder $q) => 
-                    $q->where('name', 'like', "%{$search}%")
-                )->orWhereHas('salesOrder', fn (Builder $q) => 
-                    $q->where('order_number', 'like', "%{$search}%")
+        return $query->where(function (Builder $q) use ($search) {
+            $q->where('delivery_number', 'like', "%{$search}%")
+                ->orWhereHas('customer', fn (Builder $sub) => 
+                    $sub->where('customer_name', 'like', "%{$search}%")
+                )->orWhereHas('salesOrder', fn (Builder $sub) => 
+                    $sub->where('order_number', 'like', "%{$search}%")
                 );
         });
     }

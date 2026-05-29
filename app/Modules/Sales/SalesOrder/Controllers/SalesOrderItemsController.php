@@ -20,7 +20,7 @@ class SalesOrderItemsController extends Controller
 
     public function index(string $salesOrderId): JsonResponse
     {
-        $salesOrderItems = $this->salesOrderItemsRepositories->all(['sales_order_id' => $salesOrderId]);
+        $salesOrderItems = $this->salesOrderItemsRepositories->all(['sales_order_id' => $salesOrderId])->load('product');
         return response()->json([
             'success' => true,
             'message' => 'Sales order items retrieved successfully',

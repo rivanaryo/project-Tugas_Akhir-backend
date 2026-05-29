@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use App\Modules\Sales\SalesOrder\Models\SalesOrder;
 use App\Modules\Sales\SalesDelivery\Models\SalesDelivery;
+use App\Modules\Sales\Invoice\Models\Invoice;
 
 class Customer extends Model
 {
@@ -30,6 +31,10 @@ class Customer extends Model
     public function salesDeliveries()
     {
         return $this->hasMany(SalesDelivery::class, 'customer_id');
+    }
+    public function invoices()
+    {
+        return $this->hasMany(Invoice::class, 'customer_id');
     }
 
     

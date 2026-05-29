@@ -17,14 +17,32 @@ class SalesDeliveryItemsController extends Controller
     ) {
     }
 
-    public function index (Request $request) : JsonResponse
+    public function index (string $salesDeliveryId, Request $request) : JsonResponse
     {
         $per_page = (int) $request->get('per_page', 15);
-        $items = $this->repo->paginate($request->all(), $per_page);
+        $filters = array_merge($request->all(), ['sales_delivery_id' => $salesDeliveryId]);
+        $items = $this->repo->paginate($filters, $per_page);
         return response()->json([
             'success' => true,
             'message' => 'Sales delivery items retrieved successfully',
             'data' => $items,
+        ]);
+    }
+
+    public function show(string $id) : JsonResponse
+    {
+        $salesDeliveryItems = $this->repo->findById($id)->load(['salesOrderItem.product', 'salesDelivery.salesOrder', 'salesDelivery.customer']);
+        if (!$salesDeliveryItems) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Sales delivery item not found',
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Sales delivery item retrieved successfully',
+            'data' => $salesDeliveryItems,
         ]);
     }
 

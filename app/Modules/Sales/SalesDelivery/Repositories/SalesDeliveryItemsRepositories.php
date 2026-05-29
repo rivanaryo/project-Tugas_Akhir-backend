@@ -57,33 +57,27 @@ class SalesDeliveryItemsRepositories
 
     private function baseQuery(array $filters = []): Builder
     {
-        $query = $this->model->newQuery();
-
-        if (isset($filters['sales_delivery_id'])) {
-            $query->where('sales_delivery_id', $filters['sales_delivery_id']);
-        }
-
-        if (isset($filters['sales_order_item_id'])) {
-            $query->where('sales_order_item_id', $filters['sales_order_item_id']);
-        }
+        $query = $this->model->newQuery()
+            ->with(['salesOrderItem.product'])
+            ->latest('created_at');
 
         return $this->applyFilters($query, $filters);
     }
 
     private function applyFilters(Builder $query, array $filters): Builder
     {
-        if (isset($filters['q']) || isset($filters['search'])) {
-            $search = $filters['q'] ?? $filters['search'];
-            $query = $this->applySearch($query, $search);
-        }
+        $search = $this->normalizeString($filters['q'] ?? ($filters['search'] ?? null));
+        $salesDeliveryId = $this->normalizeString($filters['sales_delivery_id'] ?? null);
+        $salesOrderItemId = $this->normalizeString($filters['sales_order_item_id'] ?? null);
 
-        return $query;
+        return $query
+            ->when($salesDeliveryId, fn (Builder $q) => $q->where('sales_delivery_id', $salesDeliveryId))
+            ->when($salesOrderItemId, fn (Builder $q) => $q->where('sales_order_item_id', $salesOrderItemId))
+            ->when($search, fn (Builder $q) => $this->applySearch($q, $search));
     }
     
     private function applySearch(Builder $query, string $search): Builder
     {
-        $search = $this->normalizeString($search);
-    
         return $query->where(function (Builder $q) use ($search) {
             $q->where('id', 'like', "%{$search}%")
                 ->orWhere('sales_delivery_id', 'like', "%{$search}%")

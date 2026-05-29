@@ -8,6 +8,8 @@ use App\Modules\MasterData\DataProduk\References\Models\Units;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use App\Modules\MasterData\ManagementPricelist\Models\Pricelist;
 use App\Modules\MasterData\ManagementVendor\Models\Vendor;
+use App\Modules\Sales\SalesOrder\Reference\Models\SalesOrderItems;
+use App\Modules\Sales\SalesDelivery\Reference\Models\SalesDeliveryItems;
 
 class Product extends Model
 {
@@ -39,6 +41,22 @@ class Product extends Model
     public function vendors()
     {
         return $this->belongsToMany(Vendor::class, 'm_pricelists', 'product_id', 'vendor_id');
+    }
+
+    public function SalesOrderItems()
+    {
+        return $this->hasMany(SalesOrderItems::class, 'product_id');
+    }
+    public function salesDeliveryItems()
+    {
+        return $this->hasManyThrough(
+            SalesDeliveryItems::class,
+            SalesOrderItems::class,
+            'product_id', // Foreign key on SalesOrderItems table
+            'sales_order_item_id', // Foreign key on SalesDeliveryItems table
+            'id', // Local key on Product table
+            'id' // Local key on SalesOrderItems table
+        );
     }
 
 }

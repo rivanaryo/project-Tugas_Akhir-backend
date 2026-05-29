@@ -22,6 +22,7 @@ class VendorPayment extends Model
         'tax_rate',
         'tax_amount',
         'account_id',
+        'status',
     ];
 
     protected $casts = [

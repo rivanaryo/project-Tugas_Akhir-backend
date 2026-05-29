@@ -19,6 +19,11 @@ class SalesDeliveryItems extends Model
         'qty_delivered',
     ];
 
+    protected $casts = [
+        'id' => 'string',
+        'qty_delivered' => 'integer',
+    ];
+
     public function salesDelivery()
     {
         return $this->belongsTo(SalesDelivery::class, 'sales_delivery_id');

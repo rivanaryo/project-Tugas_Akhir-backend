@@ -14,6 +14,7 @@ class VendorPaymentDTO {
         public float $total_paid,
         public float $tax_rate,
         public string $account_id,
+        public ?string $status = null,
     ) {}
 
     public static function fromStoreRequest(StoreVendorPaymentRequest $request): self
@@ -28,6 +29,7 @@ class VendorPaymentDTO {
             total_paid: (float) $validate['total_paid'],
             tax_rate: (float) ($validate['tax_rate'] ?? 0),
             account_id: $validate['account_id'],
+            status: $validate['status'] ?? null,
         );
     }
 
@@ -43,6 +45,7 @@ class VendorPaymentDTO {
             total_paid: (float) $validate['total_paid'],
             tax_rate: (float) ($validate['tax_rate'] ?? 0),
             account_id: $validate['account_id'],
+            status: $validate['status'] ?? null,
         );
     }
 
@@ -57,6 +60,7 @@ class VendorPaymentDTO {
             'total_paid' => $this->total_paid,
             'tax_rate' => $this->tax_rate,
             'account_id' => $this->account_id,
+            'status' => $this->status,
         ];
     }
 

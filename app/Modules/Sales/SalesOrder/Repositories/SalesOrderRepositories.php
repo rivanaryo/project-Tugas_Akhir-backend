@@ -60,36 +60,11 @@ class SalesOrderRepositories
 
     private function baseQuery(array $filters = []): Builder
     {
-        $query = $this->model->newQuery();
+        $query = $this->model
+            ->newQuery()
+            ->with(['customer', 'items.product'])
+            ->latest('created_at');
 
-        if (isset($filters['customer_id'])) {
-            $query->where('customer_id', $filters['customer_id']);
-        }
-
-        if (isset($filters['status'])) {
-            $query->where('status', $filters['status']);
-        }
-
-        if (isset($filters['order_date_from']) && isset($filters['order_date_to'])) {
-            $query->whereBetween('order_date', [$filters['order_date_from'], $filters['order_date_to']]);
-        } elseif (isset($filters['order_date_from'])) {
-            $query->where('order_date', '>=', $filters['order_date_from']);
-        } elseif (isset($filters['order_date_to'])) {
-            $query->where('order_date', '<=', $filters['order_date_to']);
-        }
-
-        if (isset($filters['q']) || isset($filters['search'])) {
-            $search = $filters['q'] ?? $filters['search'];
-            $query->where(function (Builder $query) use ($search) {
-                return $query
-                    ->where('order_number', 'like', "%{$search}%")
-                    ->orWhereHas('customer', fn (Builder $q) => 
-                        $q->where('name', 'like', "%{$search}%")
-                    );
-            });
-        }
-
-        
         return $this->applyFilters($query, $filters);
 
     }
@@ -113,7 +88,7 @@ class SalesOrderRepositories
                     return $query
                         ->where('order_number', 'like', "%{$search}%")
                         ->orWhereHas('customer', fn (Builder $q) => 
-                            $q->where('name', 'like', "%{$search}%")
+                            $q->where('customer_name', 'like', "%{$search}%")
                         );
                 })
             );

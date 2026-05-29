@@ -38,6 +38,7 @@ class VendorPaymentRepositories
     public function create(array $payload): VendorPayment
     {
         return DB::transaction(function () use ($payload): VendorPayment {
+            $payload['status'] = $payload['status'] ?? 'paid';
             return $this->model->create($this->preparePayload($payload));
         });
     }

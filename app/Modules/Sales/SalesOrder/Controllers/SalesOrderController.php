@@ -18,8 +18,8 @@ class SalesOrderController extends Controller
 
     public function index(): JsonResponse
     {
-        $salesOrders = $this->salesOrderRepositories->all()->load('items');
-
+        $salesOrders = $this->salesOrderRepositories->all()->load( 'customer');
+        
         return response()->json([
             'success' => true,
             'message' => 'Sales orders retrieved successfully',

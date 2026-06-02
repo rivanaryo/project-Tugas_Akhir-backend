@@ -3,6 +3,8 @@
 namespace App\Modules\Sales\Invoice\Repositories;
 
 use App\Modules\Sales\Invoice\Models\Invoice;
+use App\Modules\Sales\Invoice\Models\InvoiceItem;
+use App\Modules\Sales\Invoice\Services\InvoiceCalculator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -10,8 +12,10 @@ use Illuminate\Support\Facades\DB;
 
 class InvoiceRepositories
 {
-    public function __construct(private readonly Invoice $model)
-    {
+    public function __construct(
+        private readonly Invoice $model,
+        private readonly InvoiceCalculator $calculator,
+    ) {
     }
 
     public function paginate(array $filters = [], int $perPage = 15): LengthAwarePaginator
@@ -39,11 +43,30 @@ class InvoiceRepositories
     public function create(array $payload): Invoice
     {
         return DB::transaction(function () use ($payload): Invoice {
-            $payload['subtotal'] = $payload['subtotal'] ?? 0;
-            $payload['tax_total'] = $payload['tax_total'] ?? 0;
-            $payload['grand_total'] = $payload['grand_total'] ?? 0;
+            $items = $payload['items'] ?? null;
+            unset($payload['items']);
 
-            return $this->model->create($payload);
+            // Initialize totals to 0, will be calculated after items creation
+            $payload['subtotal'] = '0.00';
+            $payload['tax_total'] = '0.00';
+            $payload['grand_total'] = '0.00';
+
+            $invoice = $this->model->create($payload);
+
+            // Create items if provided
+            if ($items !== null && is_array($items)) {
+                foreach ($items as $item) {
+                    $item['invoice_id'] = $invoice->id;
+                    $item = $this->calculator->applyTotalPrice($item);
+                    InvoiceItem::create($item);
+                }
+
+                // Recalculate invoice totals
+                $this->calculator->updateInvoiceHeaderTotals($invoice->id);
+                $invoice = $invoice->fresh();
+            }
+
+            return $invoice;
         });
     }
 

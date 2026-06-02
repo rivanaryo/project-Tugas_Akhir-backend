@@ -3,6 +3,7 @@
 use App\Modules\MasterData\DataProduk\Controllers\CategoriesController;
 use App\Modules\MasterData\DataProduk\Controllers\ProductController;
 use App\Modules\MasterData\DataProduk\Controllers\UnitsController;
+use App\Modules\MasterData\Http\Controllers\MasterDataExportController;
 use App\Modules\MasterData\ManagementVendor\Controllers\VendorController;
 use App\Modules\MasterData\ManagementCustomers\Controllers\CustomerController;
 use App\Modules\MasterData\ManagementAccount\Controllers\AccountController;
@@ -50,4 +51,7 @@ Route::post('pricelists', [PricelistController::class, 'store']);
 Route::get('pricelists/{pricelist}', [PricelistController::class, 'show']);
 Route::match(['put', 'patch'], 'pricelists/{pricelist}', [PricelistController::class, 'update']);
 Route::delete('pricelists/{pricelist}', [PricelistController::class, 'destroy']);
+
+// Export routes
+Route::get('export', [MasterDataExportController::class, 'export']);
 

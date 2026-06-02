@@ -1,5 +1,6 @@
 <?php
 
+use App\Modules\Purchase\Http\Controllers\PurchaseExportController;
 use App\Modules\Purchase\PurchaseOrder\Controllers\PurchaseOrderController;
 use App\Modules\Purchase\PurchaseOrder\Controllers\PurchaseOrderItemsController;
 use App\Modules\Purchase\GoodReceipt\Controllers\GoodReceiptController;
@@ -36,3 +37,6 @@ Route::post('vendor-payments', [VendorPaymentController::class, 'store']);
 Route::get('vendor-payments/{vendorPayment}', [VendorPaymentController::class, 'show']);
 Route::match(['put', 'patch'], 'vendor-payments/{vendorPayment}', [VendorPaymentController::class, 'update']);
 Route::delete('vendor-payments/{vendorPayment}', [VendorPaymentController::class, 'destroy']);
+
+// Export routes
+Route::get('export', [PurchaseExportController::class, 'export']);

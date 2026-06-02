@@ -28,9 +28,14 @@ class UpdateInvoiceRequest extends FormRequest
             'customer_id' => 'sometimes|exists:m_customer,id',
             'sales_order_id' => 'sometimes|exists:sales_order,id',
             'status' => 'sometimes|in:pending,approved,paid,cancelled',
-            'subtotal' => 'sometimes|numeric',
-            'tax_total' => 'sometimes|numeric',
-            'grand_total' => 'sometimes|numeric',
+            'items' => 'nullable|array',
+            'items.*.sales_order_item_id' => 'required_with:items|exists:sales_order_items,id',
+            'items.*.qty_invoice' => 'required_with:items|integer|min:1',
+            'items.*.unit_price' => 'required_with:items|numeric|min:0',
+            'items.*.tax_rate' => 'nullable|numeric|min:0',
+            'subtotal' => 'prohibited',
+            'tax_total' => 'prohibited',
+            'grand_total' => 'prohibited',
         ];
     }
 }

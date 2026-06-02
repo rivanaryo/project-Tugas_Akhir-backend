@@ -11,6 +11,7 @@ class InvoiceDTO
         public readonly ?string $customer_id = null,
         public readonly ?string $sales_order_id = null,
         public readonly ?string $status = null,
+        public readonly ?array $items = null,
     ) {}
 
     public static function fromRequest(StoreInvoiceRequest $request): self
@@ -22,6 +23,7 @@ class InvoiceDTO
             customer_id: $validated['customer_id'] ?? null,
             sales_order_id: $validated['sales_order_id'] ?? null,
             status: $validated['status'] ?? null,
+            items: $validated['items'] ?? null,
         );
     }
 
@@ -34,17 +36,24 @@ class InvoiceDTO
             customer_id: $validated['customer_id'] ?? null,
             sales_order_id: $validated['sales_order_id'] ?? null,
             status: $validated['status'] ?? null,
+            items: $validated['items'] ?? null,
         );
     }
 
     public function toArray(): array
     {
-        return array_filter([
+        $result = array_filter([
             'invoice_number' => $this->invoice_number,
             'invoice_date' => $this->invoice_date,
             'customer_id' => $this->customer_id,
             'sales_order_id' => $this->sales_order_id,
             'status' => $this->status,
         ], static fn ($value): bool => $value !== null);
+
+        if ($this->items !== null) {
+            $result['items'] = $this->items;
+        }
+
+        return $result;
     }
 }

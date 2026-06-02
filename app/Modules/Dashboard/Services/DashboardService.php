@@ -22,11 +22,11 @@ class DashboardService
         // Gross Revenue (paid invoices this month)
         $grossRevenueThisMonth = Invoice::whereIn('status', ['approved', 'paid'])
             ->whereBetween('invoice_date', [$startOfMonth, $endOfMonth])
-            ->sum('grand_total');
+            ->sum('grand_total') ?? 0;
 
         $grossRevenueLastMonth = Invoice::whereIn('status', ['approved', 'paid'])
             ->whereBetween('invoice_date', [$startOfLastMonth, $endOfLastMonth])
-            ->sum('grand_total');
+            ->sum('grand_total') ?? 0;
 
         $grossRevenueGrowth = $grossRevenueLastMonth > 0
             ? (($grossRevenueThisMonth - $grossRevenueLastMonth) / $grossRevenueLastMonth) * 100
@@ -69,32 +69,34 @@ class DashboardService
 
     public function getPipeline(int $page = 1, int $perPage = 10): LengthAwarePaginator
     {
-        // Get Sales Invoices as Receivables
-        $invoices = Invoice::with('customer')
+        // Get Sales Invoices as Receivables with JOIN to get customer name
+        $invoices = DB::table('invoices')
+            ->leftJoin('m_customer', 'invoices.customer_id', '=', 'm_customer.id')
             ->select([
-                'id',
-                'invoice_number as ref_number',
-                'customer_id',
+                'invoices.id',
+                'invoices.invoice_number as ref_number',
+                'm_customer.customer_name as contact_name',
                 DB::raw("'Sales' as module"),
-                'status',
-                'invoice_date as date',
-                'grand_total as amount',
+                'invoices.status',
+                'invoices.invoice_date as date',
+                'invoices.grand_total as amount',
                 DB::raw("'incoming' as type"),
-                'created_at',
+                'invoices.created_at',
             ]);
 
-        // Get Vendor Payments as Payables
-        $payments = VendorPayment::with('vendors')
+        // Get Vendor Payments as Payables with JOIN to get vendor name
+        $payments = DB::table('vendor_payments')
+            ->leftJoin('m_vendor', 'vendor_payments.vendor_id', '=', 'm_vendor.id')
             ->select([
-                'id',
-                'payment_number as ref_number',
-                'vendor_id',
+                'vendor_payments.id',
+                'vendor_payments.payment_number as ref_number',
+                'm_vendor.vendor_name as contact_name',
                 DB::raw("'Purchase' as module"),
-                'status',
-                'payment_date as date',
-                'total_paid as amount',
+                'vendor_payments.status',
+                'vendor_payments.payment_date as date',
+                'vendor_payments.total_paid as amount',
                 DB::raw("'outgoing' as type"),
-                'created_at',
+                'vendor_payments.created_at',
             ]);
 
         // Union both queries
@@ -102,7 +104,7 @@ class DashboardService
 
         // Get total count
         $total = DB::table(DB::raw("({$unionQuery->toSql()}) as sub"))
-            ->mergeBindings($unionQuery->getQuery())
+            ->mergeBindings($unionQuery)
             ->count();
 
         // Get paginated results
@@ -115,7 +117,7 @@ class DashboardService
                 return [
                     'id' => $item->id,
                     'invoice_number' => $item->ref_number,
-                    'customer' => $item->customer?->customer_name ?? $item->vendors?->vendor_name ?? 'Unknown',
+                    'customer' => $item->contact_name ?? 'Unknown',
                     'module' => $item->module,
                     'status' => $item->status,
                     'due_date' => $item->date,

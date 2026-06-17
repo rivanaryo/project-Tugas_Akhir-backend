@@ -27,11 +27,11 @@ return [
     |
     */
 
-    'paths' => ['api/*', 'sanctum/csrf-cookie'],
+    'paths' => ['api/*'],
 
     'allowed_methods' => $csv(env('CORS_ALLOWED_METHODS'), ['*']),
 
-    'allowed_origins' => $csv(env('CORS_ALLOWED_ORIGINS'), ['http://localhost:5173']),
+    'allowed_origins' => $csv(env('CORS_ALLOWED_ORIGINS'), ['http://localhost:5173','http://127.0.0.1:5173']),
 
     'allowed_origins_patterns' => $csv(env('CORS_ALLOWED_ORIGIN_PATTERNS'), []),
 
@@ -41,8 +41,6 @@ return [
 
     'max_age' => (int) env('CORS_MAX_AGE', 3600),
 
-    // Keep false for JWT bearer token in Authorization header.
-    // Set true only if auth uses cross-site cookies.
     'supports_credentials' => $envBool('CORS_SUPPORTS_CREDENTIALS', false),
 
 ];

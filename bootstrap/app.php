@@ -11,6 +11,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->api(prepend: \Illuminate\Http\Middleware\HandleCors::class);
         $middleware->alias([
             'jwt.auth' => \App\Modules\Admin\Middleware\AuthenticateJwt::class,
             'role.admin' => \App\Modules\Admin\Middleware\EnsureAdminRole::class,

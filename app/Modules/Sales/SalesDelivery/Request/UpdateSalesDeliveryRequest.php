@@ -27,7 +27,7 @@ class UpdateSalesDeliveryRequest extends FormRequest
             'customer_id' => 'sometimes|exists:m_customer,id',
             'sales_order_id' => 'sometimes|exists:sales_order,id',
             'delivery_date' => 'nullable|date',
-            'status' => 'sometimes|in:0,1,2',    
+            'status' => 'sometimes|in:draft,approved,delivered,cancelled',    
             
 
         ];

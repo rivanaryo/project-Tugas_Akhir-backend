@@ -8,6 +8,7 @@ use App\Modules\MasterData\ManagementVendor\Controllers\VendorController;
 use App\Modules\MasterData\ManagementCustomers\Controllers\CustomerController;
 use App\Modules\MasterData\ManagementAccount\Controllers\AccountController;
 use App\Modules\MasterData\ManagementPricelist\Controllers\PricelistController;
+use App\Modules\MasterData\ManagementWarehouse\Controllers\WarehouseController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('products', [ProductController::class, 'index']);
@@ -33,6 +34,12 @@ Route::post('vendors', [VendorController::class, 'store']);
 Route::get('vendors/{vendor}', [VendorController::class, 'show']);
 Route::match(['put', 'patch'], 'vendors/{vendor}', [VendorController::class, 'update']);
 Route::delete('vendors/{vendor}', [VendorController::class, 'destroy']);
+
+Route::get('warehouses', [WarehouseController::class, 'index']);
+Route::post('warehouses', [WarehouseController::class, 'store']);
+Route::get('warehouses/{warehouse}', [WarehouseController::class, 'show']);
+Route::match(['put', 'patch'], 'warehouses/{warehouse}', [WarehouseController::class, 'update']);
+Route::delete('warehouses/{warehouse}', [WarehouseController::class, 'destroy']);
 
 Route::get('customers', [CustomerController::class, 'index']);
 Route::post('customers', [CustomerController::class, 'store']);

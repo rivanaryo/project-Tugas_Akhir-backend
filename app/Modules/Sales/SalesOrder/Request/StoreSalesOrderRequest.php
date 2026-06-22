@@ -26,7 +26,7 @@ class StoreSalesOrderRequest extends FormRequest
             'order_number' => 'required|unique:sales_order',
             'customer_id' => 'required|exists:m_customer,id',
             'order_date' => 'nullable|date',
-            'status' => 'required|in:0,1,2',
+            'status' => 'required|in:draft,approved,delivered,cancelled',
             'subtotal' => 'prohibited',
             'total_tax' => 'prohibited',
             'grand_total' => 'prohibited',

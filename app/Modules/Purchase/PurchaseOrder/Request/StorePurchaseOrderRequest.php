@@ -26,7 +26,7 @@ class StorePurchaseOrderRequest extends FormRequest
         return [
             'po_number' => 'required|string|unique:purchase_order',
             'vendor_id' => 'required|uuid|exists:m_vendor,id',
-            'status' => 'required|string|in:pending,completed',
+            'status' => 'required|string|in:draft,approved,delivered,cancelled',
             'po_date' => 'required|date',
         ];
     }

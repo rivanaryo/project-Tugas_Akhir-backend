@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use App\Modules\MasterData\ManagementVendor\Models\Vendor;
 use App\Modules\Purchase\PurchaseOrder\Reference\Models\PurchaseOrderItems;
 use App\Modules\Purchase\GoodReceipt\Models\GoodReceipt;
+use App\Modules\Inventory\StockMovement\Models\StockMovement;
 
 class PurchaseOrder extends Model
 {
@@ -39,6 +40,11 @@ class PurchaseOrder extends Model
     public function goodReceipts()
     {
         return $this->hasMany(GoodReceipt::class, 'purchase_order_id', 'id');
+    }
+
+    public function stockMovements()
+    {
+        return $this->morphMany(StockMovement::class, 'referenceable');
     }
 
 

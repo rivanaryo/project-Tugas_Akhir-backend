@@ -29,7 +29,7 @@ class UpdateGoodReceiptRequest extends FormRequest
             'purchase_order_id' => 'sometimes|required|uuid|exists:purchase_order,id',
             'vendor_id' => 'sometimes|required|uuid|exists:m_vendor,id',
             'receipt_date' => 'sometimes|required|date_format:Y-m-d',
-            'status' => 'sometimes|required|string|max:255',
+            'status' => 'sometimes|required|string|in:draft,approved,delivered,cancelled',
             'items' => 'nullable|array',
             'items.*.id' => 'nullable|uuid|exists:good_receipt_items,id',
             'items.*.purchase_order_item_id' => 'required_with:items|uuid|exists:purchase_order_items,id',

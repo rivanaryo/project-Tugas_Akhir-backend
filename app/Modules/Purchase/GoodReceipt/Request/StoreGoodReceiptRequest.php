@@ -28,7 +28,7 @@ class StoreGoodReceiptRequest extends FormRequest
             'purchase_order_id' => 'required|uuid|exists:purchase_order,id',
             'vendor_id' => 'required|uuid|exists:m_vendor,id',
             'receipt_date' => 'required|date_format:Y-m-d',
-            'status' => 'required|string|max:255',
+            'status' => 'required|string|in:draft,approved,delivered,cancelled',
             'items' => 'nullable|array',
             'items.*.purchase_order_item_id' => 'required_with:items|uuid|exists:purchase_order_items,id',
             'items.*.qty_received' => 'required_with:items|numeric|min:1',

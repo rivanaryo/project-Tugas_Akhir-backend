@@ -8,6 +8,7 @@ use App\Modules\MasterData\ManagementCustomers\Models\Customer;
 use App\Modules\Sales\SalesOrder\Reference\Models\SalesOrderItems;
 use App\Modules\Sales\SalesDelivery\Models\SalesDelivery;
 use App\Modules\Sales\Invoice\Models\Invoice;
+use App\Modules\Inventory\StockMovement\Models\StockMovement;
 
 class SalesOrder extends Model
 {
@@ -80,6 +81,10 @@ class SalesOrder extends Model
         return $this->save();
     }
      
+    public function stockMovements()
+    {
+        return $this->morphMany(StockMovement::class, 'referenceable');
+    }
     
 
 }

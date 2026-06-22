@@ -8,6 +8,8 @@ use App\Modules\MasterData\DataProduk\Repositories\UnitsRepository;
 use App\Modules\MasterData\DataProduk\References\Models\Category;
 use App\Modules\MasterData\DataProduk\References\Models\Units;
 use App\Modules\MasterData\DataProduk\Models\Product;
+use App\Modules\MasterData\ManagementWarehouse\Repositories\WarehouseRepositories;
+use App\Modules\MasterData\ManagementWarehouse\Models\Warehouse;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Route;
 
@@ -18,6 +20,7 @@ class MasterDataServiceProvider extends ServiceProvider
         $this->app->bind(ProductRepositories::class, fn () => new ProductRepositories(new Product()));
         $this->app->bind(CategoryRepositories::class, fn () => new CategoryRepositories(new Category()));
         $this->app->bind(UnitsRepository::class, fn () => new UnitsRepository(new Units()));
+        $this->app->bind(WarehouseRepositories::class, fn () => new WarehouseRepositories(new Warehouse()));
     }
 
     public function boot(): void

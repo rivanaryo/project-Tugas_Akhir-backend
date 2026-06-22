@@ -8,6 +8,7 @@ use App\Modules\MasterData\DataProduk\References\Models\Units;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use App\Modules\MasterData\ManagementPricelist\Models\Pricelist;
 use App\Modules\MasterData\ManagementVendor\Models\Vendor;
+use App\Modules\MasterData\ManagementWarehouse\Models\Warehouse;
 use App\Modules\Sales\SalesOrder\Reference\Models\SalesOrderItems;
 use App\Modules\Sales\SalesDelivery\Reference\Models\SalesDeliveryItems;
 
@@ -20,7 +21,10 @@ class Product extends Model
     protected $fillable = [
         'product_name',
         'category_id',
+        'warehouse_id',
         'unit_id',
+        'stock_level',
+        'min_stock_level',
     ];
 
     public function category()
@@ -31,6 +35,11 @@ class Product extends Model
     public function unit()
     {
         return $this->belongsTo(Units::class, 'unit_id', 'id');
+    }
+
+    public function warehouse()
+    {
+        return $this->belongsTo(Warehouse::class, 'warehouse_id');
     }
     
     public function pricelists()
@@ -57,6 +66,11 @@ class Product extends Model
             'id', // Local key on Product table
             'id' // Local key on SalesOrderItems table
         );
+    }
+
+    public function stockMovements()
+    {
+        return $this->hasMany(StockMovement::class, 'm_products_id');
     }
 
 }

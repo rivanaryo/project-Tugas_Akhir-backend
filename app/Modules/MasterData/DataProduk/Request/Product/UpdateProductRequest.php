@@ -26,6 +26,9 @@ class UpdateProductRequest extends FormRequest
             'product_name' => ['sometimes', 'bail', 'required', 'string', 'max:255'],
             'category_id' => ['sometimes', 'bail', 'required', 'uuid', 'exists:categories,id'],
             'unit_id' => ['sometimes', 'bail', 'required', 'uuid', 'exists:units,id'],
+            'warehouse_id' => ['sometimes', 'nullable', 'uuid', 'exists:warehouses,id'],
+            'stock_level' => ['sometimes', 'integer', 'min:0'],
+            'min_stock_level' => ['sometimes', 'integer', 'min:0'],
             'is_active' => ['sometimes', 'boolean'],
         ];
     }

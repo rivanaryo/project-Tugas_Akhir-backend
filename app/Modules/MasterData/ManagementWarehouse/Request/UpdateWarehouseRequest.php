@@ -1,0 +1,39 @@
+<?php
+
+namespace App\Modules\MasterData\ManagementWarehouse\Request;
+
+use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Foundation\Http\FormRequest;
+
+class UpdateWarehouseRequest extends FormRequest
+{
+    /**
+     * Determine if the user is authorized to make this request.
+     */
+    public function authorize(): bool
+    {
+        return true;
+    }
+
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array<string, ValidationRule|array<mixed>|string>
+     */
+    public function rules(): array
+    {
+        return [
+            'code' => ['sometimes', 'required', 'string', 'max:50', 'unique:warehouses,code,' . $this->route('warehouse')],
+            'name' => ['sometimes', 'required', 'string', 'max:255'],
+            'location' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'is_active' => ['sometimes', 'boolean'],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'code.unique' => 'Kode gudang sudah digunakan.',
+        ];
+    }
+}

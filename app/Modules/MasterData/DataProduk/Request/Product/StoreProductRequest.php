@@ -26,6 +26,9 @@ class StoreProductRequest extends FormRequest
             'product_name' => ['bail', 'required', 'string', 'max:255'],
             'category_id' => ['bail', 'required', 'uuid', 'exists:categories,id'],
             'unit_id' => ['bail', 'required', 'uuid', 'exists:units,id'],
+            'warehouse_id' => ['nullable', 'uuid', 'exists:warehouses,id'],
+            'stock_level' => ['sometimes', 'integer', 'min:0'],
+            'min_stock_level' => ['sometimes', 'integer', 'min:0'],
             'is_active' => ['sometimes', 'boolean'],
         ];
     }

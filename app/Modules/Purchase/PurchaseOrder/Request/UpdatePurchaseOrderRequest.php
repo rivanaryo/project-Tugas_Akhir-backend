@@ -33,7 +33,7 @@ class UpdatePurchaseOrderRequest extends FormRequest
                 Rule::unique('purchase_order', 'po_number')->ignore($id),
             ],
             'vendor_id' => ['sometimes', 'required', 'uuid', 'exists:m_vendor,id'],
-            'status' => ['sometimes', 'required', 'string', 'in:pending,completed'],
+            'status' => ['sometimes', 'required', 'string', 'in:draft,approved,delivered,cancelled'],
             'po_date' => ['sometimes', 'required', 'date'],
         ];
     }

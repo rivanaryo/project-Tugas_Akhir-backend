@@ -27,7 +27,7 @@ class StoreSalesDeliveryRequest extends FormRequest
             'customer_id' => 'required|exists:m_customer,id',
             'sales_order_id' => 'required|exists:sales_order,id',
             'delivery_date' => 'nullable|date',
-            'status' => 'required|in:0,1,2',
+            'status' => 'required|in:draft,approved,delivered,cancelled',
         ];
     }
 }

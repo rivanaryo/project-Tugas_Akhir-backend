@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('vendor_payments', function (Blueprint $table) {
-            $table->foreignUuid('account_id')->references('id')->on('m_accounts')->onDelete('cascade')->change();
-        });
+        if (Schema::hasTable('vendor_payments') && ! Schema::hasColumn('vendor_payments', 'account_id')) {
+            Schema::table('vendor_payments', function (Blueprint $table) {
+                $table->foreignUuid('account_id')->references('id')->on('m_accounts')->onDelete('cascade');
+            });
+        }
     }
 
     /**
@@ -21,8 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('vendor_payments', function (Blueprint $table) {
-                $table->foreignUuid('account_id')->references('id')->on('m_accounts')->onDelete('cascade')->change();
-        });
+        // No-op: kolom account_id sudah dibuat di migration create_vendor_payments_table
     }
 };

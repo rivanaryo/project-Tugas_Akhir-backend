@@ -24,6 +24,18 @@ class StockMovement extends Model
         'user_id',
     ];
 
+    protected $appends = ['product_name', 'warehouse_name'];
+
+    public function getProductNameAttribute(): ?string
+    {
+        return $this->product?->product_name;
+    }
+
+    public function getWarehouseNameAttribute(): ?string
+    {
+        return $this->warehouse?->name;
+    }
+
     public function referenceable()
     {
         return $this->morphTo();

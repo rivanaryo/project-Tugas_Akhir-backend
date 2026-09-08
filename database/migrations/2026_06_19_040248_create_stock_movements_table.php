@@ -13,14 +13,14 @@ return new class extends Migration
     {
         Schema::create('stock_movements', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignUuid('m_products_id')->constrained('m_products')->onDelete('cascade');
-            $table->foreignUuid('m_warehouses_id')->constrained('warehouses')->onDelete('cascade');            
-            $table->enum('type', ['in', 'out']);
+            $table->foreignUuid('m_products_id')->nullable()->constrained('m_products')->nullOnDelete();
+            $table->foreignUuid('m_warehouses_id')->nullable()->constrained('warehouses')->nullOnDelete();            
+            $table->enum('type', ['Out', 'In']);
             $table->integer('quantity');
-            $table->integer('stock_before');
-            $table->integer('stock_after');
-            $table->uuidMorphs('referenceable');
-            $table->string('reference_number'); 
+            $table->integer('stock_before')->default(0);
+            $table->integer('stock_after')->default(0);
+            $table->nullableUuidMorphs('referenceable');
+            $table->string('reference_number')->nullable(); 
             $table->text('description')->nullable();
             $table->foreignUuid('user_id')->nullable()->constrained('users')->onDelete('set null');
             $table->timestamps();

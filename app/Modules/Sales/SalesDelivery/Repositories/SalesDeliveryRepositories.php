@@ -3,6 +3,7 @@
 namespace App\Modules\Sales\SalesDelivery\Repositories;
 
 use App\Modules\Sales\SalesDelivery\Models\SalesDelivery;
+use App\Modules\Sales\SalesOrder\Models\SalesOrder;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -39,7 +40,9 @@ class SalesDeliveryRepositories
     public function create(array $payload): SalesDelivery
     {
         return DB::transaction(function () use ($payload): SalesDelivery {
-            return $this->model->create($payload);
+            $salesDelivery = $this->model->create($payload);
+            $this->syncSalesOrderStatus($salesDelivery);
+            return $salesDelivery;
         });
     }
 
@@ -48,7 +51,9 @@ class SalesDeliveryRepositories
         return DB::transaction(function () use ($id, $payload): SalesDelivery {
             $salesDelivery = $this->findOrFail($id);
             $salesDelivery->update($payload);
-            return $salesDelivery->fresh() ?? $salesDelivery;
+            $salesDelivery = $salesDelivery->fresh() ?? $salesDelivery;
+            $this->syncSalesOrderStatus($salesDelivery);
+            return $salesDelivery;
         });
     }
 
@@ -57,6 +62,19 @@ class SalesDeliveryRepositories
         return DB::transaction(fn (): bool => (bool) $this->findOrFail($id)->delete());
     }
 
+
+    private function syncSalesOrderStatus(SalesDelivery $delivery): void
+    {
+        $status = $delivery->status;
+        if ($status === null || $delivery->sales_order_id === null) {
+            return;
+        }
+
+        $salesOrder = $delivery->salesOrder;
+        if ($salesOrder && $salesOrder->status !== $status) {
+            $salesOrder->updateStatus($status);
+        }
+    }
 
     private function baseQuery(array $filters = []): Builder
     {

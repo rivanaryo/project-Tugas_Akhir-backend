@@ -4,7 +4,7 @@ namespace App\Modules\MasterData\ManagementAccount\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
-use App\Modules\Purchase\VendorPayment\Models\VendorPayment;
+use App\Modules\Finance\VendorPayment\Models\VendorPayment;
 
 class Account extends Model
 {

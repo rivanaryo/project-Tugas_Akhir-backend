@@ -3,7 +3,7 @@
 namespace App\Modules\Dashboard\Services;
 
 use App\Modules\MasterData\ManagementAccount\Models\Account;
-use App\Modules\Purchase\VendorPayment\Models\VendorPayment;
+use App\Modules\Finance\VendorPayment\Models\VendorPayment;
 use App\Modules\Sales\Invoice\Models\Invoice;
 use Carbon\Carbon;
 use Illuminate\Pagination\LengthAwarePaginator;

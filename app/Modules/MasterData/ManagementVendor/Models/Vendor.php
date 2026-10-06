@@ -6,8 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use App\Modules\MasterData\ManagementPricelist\Models\Pricelist;
 use App\Modules\MasterData\DataProduk\Models\Product;
-use App\Modules\Purchase\PurchaseOrder\Models\PurchaseOrder;
-use App\Modules\Purchase\VendorPayment\Models\VendorPayment;
+use App\Modules\Inventory\PurchaseOrder\Models\PurchaseOrder;
+use App\Modules\Finance\VendorPayment\Models\VendorPayment;
 
 
 class Vendor extends Model

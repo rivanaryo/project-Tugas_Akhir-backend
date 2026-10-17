@@ -8,6 +8,8 @@ class AccountDTO
 {
     public readonly string $account_name;
     public readonly string $account_number;
+    public readonly ?string $type;
+    public readonly ?float $balance;
     public readonly ?string $bank_name;
     public readonly ?bool $is_active;
 
@@ -15,6 +17,8 @@ class AccountDTO
     {
         $this->account_name = $data['account_name'];
         $this->account_number = $data['account_number'];
+        $this->type = $data['type'] ?? null;
+        $this->balance = isset($data['balance']) ? (float) $data['balance'] : null;
         $this->bank_name = $data['bank_name'] ?? null;
         $this->is_active = $data['is_active'] ?? null;
     }
@@ -26,6 +30,8 @@ class AccountDTO
         return new self([
             'account_name' => $validated['account_name']?? '',
             'account_number' => $validated['account_number']?? '',
+            'type' => $validated['type'] ?? 'bank',
+            'balance' => $validated['balance'] ?? 0,
             'bank_name' => $validated['bank_name'] ?? '',
             'is_active' => $validated['is_active'] ?? null,
         ]);  
@@ -38,6 +44,8 @@ class AccountDTO
         return new self([
             'account_name' => $validated['account_name']?? '',
             'account_number' => $validated['account_number']?? '',
+            'type' => $validated['type'] ?? 'bank',
+            'balance' => $validated['balance'] ?? 0,
             'bank_name' => $validated['bank_name'] ?? '',
             'is_active' => $validated['is_active'] ?? null,
         ]);
@@ -48,6 +56,8 @@ class AccountDTO
         $payload = [
             'account_name' => $this->account_name,
             'account_number' => $this->account_number,
+            'type' => $this->type,
+            'balance' => $this->balance,
             'bank_name' => $this->bank_name,
             'is_active' => $this->is_active,
         ];

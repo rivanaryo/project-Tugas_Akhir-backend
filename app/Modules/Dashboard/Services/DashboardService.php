@@ -4,6 +4,8 @@ namespace App\Modules\Dashboard\Services;
 
 use App\Modules\MasterData\ManagementAccount\Models\Account;
 use App\Modules\Finance\VendorPayment\Models\VendorPayment;
+use App\Modules\Production\PurchaseOrder\Models\PurchaseOrder;
+use App\Modules\Production\WorkOrder\Models\WorkOrder;
 use App\Modules\Sales\Invoice\Models\Invoice;
 use Carbon\Carbon;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -32,8 +34,9 @@ class DashboardService
             ? (($grossRevenueThisMonth - $grossRevenueLastMonth) / $grossRevenueLastMonth) * 100
             : 0;
 
-        // Cash In Bank (total from active accounts)
-        $cashInBank = Account::where('is_active', true)->count();
+        // Cash In Bank (total balance from active accounts)
+        $cashInBank = Account::where('is_active', true)->sum('balance');
+        $activeAccounts = Account::where('is_active', true)->count();
 
         // Pending Payables (unpaid vendor payments)
         $pendingPayables = VendorPayment::where('status', 'unpaid')
@@ -48,6 +51,36 @@ class DashboardService
         $paidInvoices = Invoice::whereIn('status', ['approved', 'paid'])->count();
         $collectionRate = $totalInvoices > 0 ? ($paidInvoices / $totalInvoices) * 100 : 0;
 
+        // Revenue Month
+        $revenueMonth = $grossRevenueThisMonth;
+        $revenueMonthGrowth = round($grossRevenueGrowth, 1);
+
+        // Active Purchase Orders
+        $activePoCount = PurchaseOrder::whereIn('status', ['draft', 'approved'])->count();
+        $activePoBreakdown = [
+            'draft' => PurchaseOrder::where('status', 'draft')->count(),
+            'approved' => PurchaseOrder::where('status', 'approved')->count(),
+            'received' => PurchaseOrder::where('status', 'received')->count(),
+            'cancelled' => PurchaseOrder::where('status', 'cancelled')->count(),
+        ];
+
+        // Material Expense (paid vendor payments this month)
+        $materialExpenseThisMonth = VendorPayment::where('status', 'paid')
+            ->whereBetween('payment_date', [$startOfMonth, $endOfMonth])
+            ->sum('total_paid') ?? 0;
+
+        $materialExpenseLastMonth = VendorPayment::where('status', 'paid')
+            ->whereBetween('payment_date', [$startOfLastMonth, $endOfLastMonth])
+            ->sum('total_paid') ?? 0;
+
+        $materialExpenseGrowth = $materialExpenseLastMonth > 0
+            ? (($materialExpenseThisMonth - $materialExpenseLastMonth) / $materialExpenseLastMonth) * 100
+            : 0;
+
+        // Unpaid Invoices
+        $unpaidInvoicesValue = Invoice::where('status', 'pending')->sum('grand_total') ?? 0;
+        $unpaidInvoicesCount = Invoice::where('status', 'pending')->count();
+
         return [
             'gross_revenue' => [
                 'value' => $grossRevenueThisMonth,
@@ -55,7 +88,7 @@ class DashboardService
             ],
             'cash_in_bank' => [
                 'value' => $cashInBank,
-                'accounts' => $cashInBank,
+                'accounts' => $activeAccounts,
             ],
             'pending_payables' => [
                 'value' => $pendingPayables,
@@ -64,7 +97,40 @@ class DashboardService
             'collection_rate' => [
                 'value' => round($collectionRate, 1),
             ],
+            'revenue_month' => [
+                'value' => $revenueMonth,
+                'growth' => $revenueMonthGrowth,
+            ],
+            'active_po' => [
+                'value' => $activePoCount,
+                'breakdown' => $activePoBreakdown,
+            ],
+            'material_expense' => [
+                'value' => $materialExpenseThisMonth,
+                'growth' => round($materialExpenseGrowth, 1),
+            ],
+            'unpaid_invoices' => [
+                'value' => $unpaidInvoicesValue,
+                'count' => $unpaidInvoicesCount,
+            ],
         ];
+    }
+
+    public function getActiveWorkOrders(int $limit = 10): array
+    {
+        return WorkOrder::with('product')
+            ->whereNotIn('status', ['completed', 'cancelled'])
+            ->latest()
+            ->limit($limit)
+            ->get()
+            ->map(fn (WorkOrder $wo) => [
+                'id' => $wo->id,
+                'wo_number' => $wo->wo_number,
+                'product' => $wo->product?->product_name,
+                'stage' => $wo->stage,
+                'progress' => $wo->progress,
+            ])
+            ->toArray();
     }
 
     public function getPipeline(int $page = 1, int $perPage = 10): LengthAwarePaginator

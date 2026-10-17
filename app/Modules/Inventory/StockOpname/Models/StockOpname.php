@@ -3,6 +3,7 @@
 namespace App\Modules\Inventory\StockOpname\Models;
 
 use App\Modules\Admin\Models\Admin;
+use App\Modules\Inventory\StockMovement\Models\StockMovement;
 use App\Modules\MasterData\ManagementWarehouse\Models\Warehouse;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
@@ -39,5 +40,10 @@ class StockOpname extends Model
     public function items()
     {
         return $this->hasMany(StockOpnameItem::class, 'stock_opname_id');
+    }
+
+    public function stockMovements()
+    {
+        return $this->morphMany(StockMovement::class, 'referenceable');
     }
 }

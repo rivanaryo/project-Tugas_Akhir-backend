@@ -78,12 +78,14 @@ class ProductRepositories
         $search = $this->normalizeString($filters['search'] ?? null);
         $categoryId = $this->normalizeString($filters['category_id'] ?? null);
         $unitId = $this->normalizeString($filters['unit_id'] ?? null);
+        $warehouseId = $this->normalizeString($filters['warehouse_id'] ?? null);
         $isActive = $this->normalizeNullableBool($filters['is_active'] ?? null);
 
         return $query
             ->when($search !== null, fn (Builder $q): Builder => $this->applySearch($q, $search))
             ->when($categoryId !== null, fn (Builder $q): Builder => $q->where('category_id', $categoryId))
             ->when($unitId !== null, fn (Builder $q): Builder => $q->where('unit_id', $unitId))
+            ->when($warehouseId !== null, fn (Builder $q): Builder => $q->where('warehouse_id', $warehouseId))
             ->when($isActive !== null, fn (Builder $q): Builder => $q->where('is_active', $isActive));
     }
 

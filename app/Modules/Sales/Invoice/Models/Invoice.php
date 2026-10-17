@@ -18,7 +18,11 @@ class Invoice extends Model
         'invoice_date',
         'customer_id',
         'sales_order_id',
+        'type',
         'status',
+        'subtotal',
+        'tax_total',
+        'grand_total',
     ];
 
     protected $casts = [

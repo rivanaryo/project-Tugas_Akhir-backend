@@ -27,6 +27,7 @@ class UpdateInvoiceRequest extends FormRequest
             'invoice_date' => 'sometimes|date',
             'customer_id' => 'sometimes|exists:m_customer,id',
             'sales_order_id' => 'sometimes|exists:sales_order,id',
+            'type' => 'sometimes|in:dp,pelunasan',
             'status' => 'sometimes|in:pending,approved,paid,cancelled',
             'items' => 'nullable|array',
             'items.*.sales_order_item_id' => 'required_with:items|exists:sales_order_items,id',

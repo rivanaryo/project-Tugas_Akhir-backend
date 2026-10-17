@@ -6,9 +6,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('login', [AuthController::class, 'login']);
 
-Route::middleware(['jwt.auth', 'role.admin'])->group(function (): void {
+Route::middleware(['auth:sanctum', 'role.admin'])->group(function (): void {
 	Route::get('me', [AuthController::class, 'me']);
-	Route::post('refresh', [AuthController::class, 'refresh']);
 	Route::post('logout', [AuthController::class, 'logout']);
 
 	Route::get('users', [AdminController::class, 'index']);

@@ -10,6 +10,7 @@ class InvoiceDTO
         public readonly ?string $invoice_date = null,
         public readonly ?string $customer_id = null,
         public readonly ?string $sales_order_id = null,
+        public readonly ?string $type = null,
         public readonly ?string $status = null,
         public readonly ?array $items = null,
     ) {}
@@ -22,6 +23,7 @@ class InvoiceDTO
             invoice_date: $validated['invoice_date'] ?? null,
             customer_id: $validated['customer_id'] ?? null,
             sales_order_id: $validated['sales_order_id'] ?? null,
+            type: $validated['type'] ?? null,
             status: $validated['status'] ?? null,
             items: $validated['items'] ?? null,
         );
@@ -35,6 +37,7 @@ class InvoiceDTO
             invoice_date: $validated['invoice_date'] ?? null,
             customer_id: $validated['customer_id'] ?? null,
             sales_order_id: $validated['sales_order_id'] ?? null,
+            type: $validated['type'] ?? null,
             status: $validated['status'] ?? null,
             items: $validated['items'] ?? null,
         );
@@ -47,6 +50,7 @@ class InvoiceDTO
             'invoice_date' => $this->invoice_date,
             'customer_id' => $this->customer_id,
             'sales_order_id' => $this->sales_order_id,
+            'type' => $this->type,
             'status' => $this->status,
         ], static fn ($value): bool => $value !== null);
 

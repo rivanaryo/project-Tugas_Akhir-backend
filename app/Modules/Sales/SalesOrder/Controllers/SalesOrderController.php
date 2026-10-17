@@ -16,10 +16,11 @@ class SalesOrderController extends Controller
     ) {
     }
 
-    public function index(): JsonResponse
+    public function index(\Illuminate\Http\Request $request): JsonResponse
     {
-        $salesOrders = $this->salesOrderRepositories->all()->load( 'customer');
-        
+        $perPage = (int) $request->get('per_page', 15);
+        $salesOrders = $this->salesOrderRepositories->paginate($request->all(), $perPage);
+
         return response()->json([
             'success' => true,
             'message' => 'Sales orders retrieved successfully',
@@ -93,6 +94,32 @@ class SalesOrderController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Sales order deleted successfully',
+        ]);
+    }
+
+    public function balance(string $id): JsonResponse
+    {
+        $salesOrder = $this->salesOrderRepositories->findById($id);
+        if (!$salesOrder) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Sales order not found',
+            ], 404);
+        }
+
+        $grandTotal = (float) $salesOrder->grand_total;
+        $paid = (float) \App\Modules\Finance\CustomerPayment\Models\CustomerPayment::where('sales_order_id', $salesOrder->id)
+            ->where('status', 'paid')
+            ->sum('amount');
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Sales order balance retrieved successfully',
+            'data' => [
+                'grand_total' => $grandTotal,
+                'paid' => $paid,
+                'remaining' => max(0, $grandTotal - $paid),
+            ],
         ]);
     }
 

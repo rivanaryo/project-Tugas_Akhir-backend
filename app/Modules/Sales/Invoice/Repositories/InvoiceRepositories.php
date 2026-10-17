@@ -44,7 +44,13 @@ class InvoiceRepositories
     {
         return DB::transaction(function () use ($payload): Invoice {
             $items = $payload['items'] ?? null;
+            $type = $payload['type'] ?? 'pelunasan';
             unset($payload['items']);
+
+            $salesOrder = null;
+            if (!empty($payload['sales_order_id'])) {
+                $salesOrder = \App\Modules\Sales\SalesOrder\Models\SalesOrder::find($payload['sales_order_id']);
+            }
 
             // Initialize totals to 0, will be calculated after items creation
             $payload['subtotal'] = '0.00';
@@ -63,6 +69,24 @@ class InvoiceRepositories
 
                 // Recalculate invoice totals
                 $this->calculator->updateInvoiceHeaderTotals($invoice->id);
+                $invoice = $invoice->fresh();
+            }
+
+            // Auto-adjust totals for DP/pelunasan without explicit items
+            if (($items === null || !is_array($items)) && $salesOrder) {
+                $grandTotal = (float) $salesOrder->grand_total;
+                $paid = (float) \App\Modules\Finance\CustomerPayment\Models\CustomerPayment::where('sales_order_id', $salesOrder->id)
+                    ->where('status', 'paid')
+                    ->sum('amount');
+                $remaining = max(0, $grandTotal - $paid);
+
+                $targetAmount = $type === 'dp' ? round($grandTotal * 0.5, 2) : $remaining;
+
+                $invoice->update([
+                    'subtotal' => number_format($targetAmount, 2, '.', ''),
+                    'tax_total' => '0.00',
+                    'grand_total' => number_format($targetAmount, 2, '.', ''),
+                ]);
                 $invoice = $invoice->fresh();
             }
 

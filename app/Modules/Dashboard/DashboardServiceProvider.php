@@ -14,7 +14,7 @@ class DashboardServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        Route::middleware('api')
+        Route::middleware(['api', 'auth:sanctum', 'role.admin'])
             ->prefix('api/dashboard')
             ->as('dashboard.')
             ->group(__DIR__.'/Routes/api.php');

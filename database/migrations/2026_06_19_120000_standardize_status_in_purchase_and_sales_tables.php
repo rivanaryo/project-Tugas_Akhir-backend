@@ -14,12 +14,12 @@ return new class extends Migration
     {
         // Update purchase_order table
         Schema::table('purchase_order', function (Blueprint $table) {
-            $table->string('status')->default('draft')->comment('draft: new order, approved: approved, delivered: delivered, cancelled: cancelled')->change();
+            $table->string('status')->default('draft')->comment('Draft: new order, Approved: approved, Received: received, Cancelled: cancelled')->change();
         });
 
         // Update good_receipt table
         Schema::table('good_receipt', function (Blueprint $table) {
-            $table->string('status')->default('draft')->comment('draft: new receipt, approved: approved, delivered: delivered, cancelled: cancelled')->change();
+            $table->string('status')->default('draft')->comment('Draft: new receipt, Approved: approved, Received: received, Cancelled: cancelled')->change();
         });
 
         // Update sales_order table
@@ -51,11 +51,11 @@ return new class extends Migration
 
         // Revert schema changes
         Schema::table('purchase_order', function (Blueprint $table) {
-            $table->string('status')->default('pending')->change();
+            $table->string('status')->default('pending')->comment('draft: new order, approved: approved, delivered: delivered, cancelled: cancelled')->change();
         });
 
         Schema::table('good_receipt', function (Blueprint $table) {
-            $table->string('status')->default('pending')->change();
+            $table->string('status')->default('pending')->comment('draft: new receipt, approved: approved, delivered: delivered, cancelled: cancelled')->change();
         });
 
         Schema::table('sales_order', function (Blueprint $table) {
@@ -76,18 +76,20 @@ return new class extends Migration
      */
     private function convertExistingData(): void
     {
-        // Convert purchase_order: pending -> draft, completed -> delivered
+        // Convert purchase_order: pending -> Draft, completed -> Received
         DB::statement("UPDATE purchase_order SET status = CASE 
             WHEN status = 'pending' THEN 'draft'
-            WHEN status = 'completed' THEN 'delivered'
+            WHEN status = 'completed' THEN 'received'
+            WHEN status = 'delivered' THEN 'received'
             WHEN status = 'cancelled' THEN 'cancelled'
             ELSE status
         END");
 
-        // Convert good_receipt: pending -> draft, completed -> delivered
+        // Convert good_receipt: pending -> Draft, completed -> Received
         DB::statement("UPDATE good_receipt SET status = CASE 
             WHEN status = 'pending' THEN 'draft'
-            WHEN status = 'completed' THEN 'delivered'
+            WHEN status = 'completed' THEN 'received'
+            WHEN status = 'delivered' THEN 'received'
             WHEN status = 'cancelled' THEN 'cancelled'
             ELSE status
         END");
@@ -122,18 +124,20 @@ return new class extends Migration
      */
     private function revertDataConversion(): void
     {
-        // Revert purchase_order: draft -> pending, delivered -> completed
+        // Revert purchase_order: Draft -> pending, Received -> completed, Approved -> pending, Cancelled -> cancelled
         DB::statement("UPDATE purchase_order SET status = CASE 
             WHEN status = 'draft' THEN 'pending'
-            WHEN status = 'delivered' THEN 'completed'
+            WHEN status = 'received' THEN 'completed'
+            WHEN status = 'approved' THEN 'pending'
             WHEN status = 'cancelled' THEN 'cancelled'
             ELSE status
         END");
 
-        // Revert good_receipt: draft -> pending, delivered -> completed
+        // Revert good_receipt: Draft -> pending, Received -> completed, Approved -> pending, Cancelled -> cancelled
         DB::statement("UPDATE good_receipt SET status = CASE 
             WHEN status = 'draft' THEN 'pending'
-            WHEN status = 'delivered' THEN 'completed'
+            WHEN status = 'received' THEN 'completed'
+            WHEN status = 'approved' THEN 'pending'
             WHEN status = 'cancelled' THEN 'cancelled'
             ELSE status
         END");

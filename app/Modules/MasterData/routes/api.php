@@ -9,6 +9,7 @@ use App\Modules\MasterData\ManagementCustomers\Controllers\CustomerController;
 use App\Modules\MasterData\ManagementAccount\Controllers\AccountController;
 use App\Modules\MasterData\ManagementPricelist\Controllers\PricelistController;
 use App\Modules\MasterData\ManagementWarehouse\Controllers\WarehouseController;
+use App\Modules\MasterData\SizeChart\Controllers\SizeChartController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('products', [ProductController::class, 'index']);
@@ -58,6 +59,12 @@ Route::post('pricelists', [PricelistController::class, 'store']);
 Route::get('pricelists/{pricelist}', [PricelistController::class, 'show']);
 Route::match(['put', 'patch'], 'pricelists/{pricelist}', [PricelistController::class, 'update']);
 Route::delete('pricelists/{pricelist}', [PricelistController::class, 'destroy']);
+
+Route::get('size-charts', [SizeChartController::class, 'index']);
+Route::post('size-charts', [SizeChartController::class, 'store']);
+Route::get('size-charts/{sizeChart}', [SizeChartController::class, 'show']);
+Route::match(['put', 'patch'], 'size-charts/{sizeChart}', [SizeChartController::class, 'update']);
+Route::delete('size-charts/{sizeChart}', [SizeChartController::class, 'destroy']);
 
 // Export routes
 Route::get('export', [MasterDataExportController::class, 'export']);

@@ -2,6 +2,7 @@
 
 namespace App\Modules\Inventory\StockOpname\Repositories;
 
+use App\Modules\Inventory\StockMovement\Models\StockMovement;
 use App\Modules\Inventory\StockOpname\Models\StockOpname;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -57,8 +58,10 @@ class StockOpnameRepositories
             ]);
 
             foreach ($data['items'] as $item) {
-                $opname->items()->create($this->prepareItem($item));
+                $opname->items()->create($this->prepareItem($item, $opname));
             }
+
+            $this->syncAdjustmentMovements($opname);
 
             return $opname;
         });
@@ -77,11 +80,14 @@ class StockOpnameRepositories
             if (array_key_exists('items', $data) && is_array($data['items'])) {
                 $opname->items()->delete();
                 foreach ($data['items'] as $item) {
-                    $opname->items()->create($this->prepareItem($item));
+                    $opname->items()->create($this->prepareItem($item, $opname));
                 }
             }
 
-            return $opname->fresh() ?? $opname;
+            $opname = $opname->fresh() ?? $opname;
+            $this->syncAdjustmentMovements($opname);
+
+            return $opname;
         });
     }
 
@@ -90,10 +96,14 @@ class StockOpnameRepositories
         return DB::transaction(fn (): bool => (bool) $this->findOrFail($id)->delete());
     }
 
-    private function prepareItem(array $item): array
+    private function prepareItem(array $item, StockOpname $opname): array
     {
-        $system = (int) ($item['system_qty'] ?? 0);
         $physical = (int) ($item['physical_qty'] ?? 0);
+        $system = $this->calculateSystemQty(
+            (string) $item['product_id'],
+            (string) $opname->warehouse_id,
+            (string) $opname->opname_date?->toDateString()
+        );
 
         return [
             'product_id' => $item['product_id'],
@@ -102,6 +112,48 @@ class StockOpnameRepositories
             'difference_qty' => $physical - $system,
             'notes' => $item['notes'] ?? null,
         ];
+    }
+
+    private function calculateSystemQty(string $productId, string $warehouseId, string $opnameDate): int
+    {
+        $result = DB::table('stock_movements')
+            ->where('m_products_id', $productId)
+            ->where('m_warehouses_id', $warehouseId)
+            ->whereDate('date', '<=', $opnameDate)
+            ->selectRaw("SUM(CASE WHEN type = 'In' THEN quantity ELSE -quantity END) as qty")
+            ->first();
+
+        return (int) ($result?->qty ?? 0);
+    }
+
+    private function syncAdjustmentMovements(StockOpname $opname): void
+    {
+        $opname->stockMovements()->delete();
+
+        if ($opname->status !== 'Completed') {
+            return;
+        }
+
+        foreach ($opname->items as $item) {
+            $difference = (int) $item->difference_qty;
+
+            if ($difference === 0) {
+                continue;
+            }
+
+            $opname->stockMovements()->create([
+                'm_products_id' => $item->product_id,
+                'm_warehouses_id' => $opname->warehouse_id,
+                'type' => $difference > 0 ? 'In' : 'Out',
+                'quantity' => abs($difference),
+                'stock_before' => (int) $item->system_qty,
+                'stock_after' => (int) $item->physical_qty,
+                'referenceable_id' => $opname->id,
+                'referenceable_type' => StockOpname::class,
+                'reference_number' => $opname->opname_number,
+                'description' => 'Stock opname adjustment',
+            ]);
+        }
     }
 
     private function baseQuery(array $filters = []): Builder

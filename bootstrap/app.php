@@ -12,6 +12,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->api(prepend: \Illuminate\Http\Middleware\HandleCors::class);
+        $middleware->redirectGuestsTo(fn ($request) => $request->expectsJson() ? null : '/login');
         $middleware->alias([
             'jwt.auth' => \App\Modules\Admin\Middleware\AuthenticateJwt::class,
             'role.admin' => \App\Modules\Admin\Middleware\EnsureAdminRole::class,

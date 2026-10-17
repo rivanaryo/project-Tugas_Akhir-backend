@@ -9,6 +9,8 @@ use App\Modules\Finance\FinanceServiceProvider;
 use App\Modules\Sales\SalesServiceProvider;
 use App\Modules\Dashboard\DashboardServiceProvider;
 use App\Modules\Inventory\InventoryServiceProvider;
+use App\Modules\Rd\RdServiceProvider;
+use App\Modules\Production\ProductionServiceProvider;
 
 class Providers extends ServiceProvider
 {
@@ -23,6 +25,8 @@ class Providers extends ServiceProvider
         $this->app->register(SalesServiceProvider::class);
         $this->app->register(DashboardServiceProvider::class);
         $this->app->register(InventoryServiceProvider::class);
+        $this->app->register(RdServiceProvider::class);
+        $this->app->register(ProductionServiceProvider::class);
 
     }
 

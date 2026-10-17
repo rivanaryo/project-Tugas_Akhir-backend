@@ -25,8 +25,13 @@ class StockMovementResource extends JsonResource
                 'name' => $this->product->product_name,
                 'unit' => $this->product->unit,
             ],
+            'warehouse' => [
+                'id'   => $this->warehouse?->id,
+                'name' => $this->warehouse?->name,
+                'code' => $this->warehouse?->code,
+            ],
             'document_type'      => $documentType,
-            'reference_details'  => null, 
+            'reference_details'  => null,
         ];
     }
 
@@ -37,9 +42,9 @@ class StockMovementResource extends JsonResource
         }
 
         $mapping = [
-            'App\\Modules\\Purchase\\PurchaseOrder\\Models\\PurchaseOrder' => 'Purchase Order',
+            'App\\Modules\\Inventory\\PurchaseOrder\\Models\\PurchaseOrder' => 'Purchase Order',
+            'App\\Modules\\Inventory\\GoodReceipt\\Models\\GoodReceipt' => 'Good Receipt',
             'App\\Modules\\Sales\\SalesOrder\\Models\\SalesOrder' => 'Sales Order',
-            'App\\Modules\\Purchase\\GoodReceipt\\Models\\GoodReceipt' => 'Good Receipt',
             'App\\Modules\\Sales\\SalesDelivery\\Models\\SalesDelivery' => 'Sales Delivery',
         ];
 

@@ -17,6 +17,8 @@ class Account extends Model
     protected $fillable = [
         'account_name',
         'account_number',
+        'type',
+        'balance',
         'bank_name',
         'is_active',
     ];

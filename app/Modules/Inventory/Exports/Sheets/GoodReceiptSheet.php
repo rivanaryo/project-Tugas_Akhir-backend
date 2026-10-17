@@ -2,7 +2,7 @@
 
 namespace App\Modules\Inventory\Exports\Sheets;
 
-use App\Modules\Inventory\GoodReceipt\Models\GoodReceipt;
+use App\Modules\Production\GoodReceipt\Models\GoodReceipt;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -22,7 +22,7 @@ class GoodReceiptSheet implements FromCollection, WithHeadings, WithTitle
     public function collection(): Collection
     {
         $query = GoodReceipt::query()
-            ->with(['vendor', 'purchaseOrder']);
+            ->with(['vendor', 'purchaseOrder', 'warehouse']);
 
         if ($this->startDate) {
             $query->whereDate('created_at', '>=', $this->startDate);
@@ -37,6 +37,7 @@ class GoodReceiptSheet implements FromCollection, WithHeadings, WithTitle
                 'gr_number' => $gr->gr_number,
                 'vendor_name' => $gr->vendor?->vendor_name ?? '-',
                 'po_number' => $gr->purchaseOrder?->po_number ?? '-',
+                'warehouse_name' => $gr->warehouse?->name ?? '-',
                 'receipt_date' => $gr->receipt_date ? (is_string($gr->receipt_date) ? date('d/m/Y', strtotime($gr->receipt_date)) : $gr->receipt_date->format('d/m/Y')) : '-',
                 'status' => $this->formatStatus($gr->status),
                 'created_at' => $gr->created_at?->format('d/m/Y H:i') ?? '-',
@@ -50,6 +51,7 @@ class GoodReceiptSheet implements FromCollection, WithHeadings, WithTitle
             'GR Number',
             'Vendor Name',
             'PO Number',
+            'Warehouse Name',
             'Receipt Date',
             'Status',
             'Created At',

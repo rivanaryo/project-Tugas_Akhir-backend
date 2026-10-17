@@ -30,7 +30,7 @@ class StoreStockOpnameRequest extends FormRequest
             'notes' => 'nullable|string',
             'items' => 'required|array|min:1',
             'items.*.product_id' => 'required|uuid|exists:m_products,id',
-            'items.*.system_qty' => 'required|integer|min:0',
+            'items.*.system_qty' => 'nullable|integer|min:0',
             'items.*.physical_qty' => 'required|integer|min:0',
             'items.*.notes' => 'nullable|string|max:255',
         ];

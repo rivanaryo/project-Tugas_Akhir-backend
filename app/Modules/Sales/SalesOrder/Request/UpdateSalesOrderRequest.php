@@ -26,7 +26,7 @@ class UpdateSalesOrderRequest extends FormRequest
             'order_number' => 'sometimes|string|unique:sales_order',
             'customer_id' => 'sometimes|string|exists:m_customer,id',
             'order_date' => 'sometimes|date',
-            'status' => 'sometimes|in:draft,approved,delivered,cancelled',
+            'status' => 'sometimes|in:draft,approved,dp_paid,in_production,delivered,completed,cancelled',
             'subtotal' => 'prohibited',
             'total_tax' => 'prohibited',
             'grand_total' => 'prohibited',

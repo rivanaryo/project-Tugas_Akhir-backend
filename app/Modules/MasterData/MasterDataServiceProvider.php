@@ -25,7 +25,7 @@ class MasterDataServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        Route::middleware(['api', 'jwt.auth', 'role.admin'])
+        Route::middleware(['api', 'auth:sanctum', 'role.admin'])
             ->prefix('api/master-data')
             ->as('master-data.')
             ->group(__DIR__.'/routes/api.php');

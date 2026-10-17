@@ -16,7 +16,7 @@ class FinanceServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        Route::middleware(['api', 'jwt.auth', 'role.admin'])
+        Route::middleware(['api', 'auth:sanctum', 'role.admin'])
             ->prefix('api/finance')
             ->as('finance.')
             ->group(__DIR__.'/routes/api.php');

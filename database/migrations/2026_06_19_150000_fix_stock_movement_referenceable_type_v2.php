@@ -14,7 +14,7 @@ return new class extends Migration
         // Convert invalid class names to proper full namespaces
         DB::table('stock_movements')
             ->where('referenceable_type', 'Purchase Order')
-            ->update(['referenceable_type' => 'App\Modules\Inventory\PurchaseOrder\Models\PurchaseOrder']);
+            ->update(['referenceable_type' => 'App\Modules\Production\PurchaseOrder\Models\PurchaseOrder']);
 
         DB::table('stock_movements')
             ->where('referenceable_type', 'Sales Order')
@@ -22,7 +22,7 @@ return new class extends Migration
 
         DB::table('stock_movements')
             ->where('referenceable_type', 'Good Receipt')
-            ->update(['referenceable_type' => 'App\Modules\Inventory\GoodReceipt\Models\GoodReceipt']);
+            ->update(['referenceable_type' => 'App\Modules\Production\GoodReceipt\Models\GoodReceipt']);
 
         DB::table('stock_movements')
             ->where('referenceable_type', 'Sales Delivery')
@@ -36,7 +36,7 @@ return new class extends Migration
     {
         // Revert to old format
         DB::table('stock_movements')
-            ->where('referenceable_type', 'App\Modules\Inventory\PurchaseOrder\Models\PurchaseOrder')
+            ->where('referenceable_type', 'App\Modules\Production\PurchaseOrder\Models\PurchaseOrder')
             ->update(['referenceable_type' => 'Purchase Order']);
 
         DB::table('stock_movements')
@@ -44,7 +44,7 @@ return new class extends Migration
             ->update(['referenceable_type' => 'Sales Order']);
 
         DB::table('stock_movements')
-            ->where('referenceable_type', 'App\Modules\Inventory\GoodReceipt\Models\GoodReceipt')
+            ->where('referenceable_type', 'App\Modules\Production\GoodReceipt\Models\GoodReceipt')
             ->update(['referenceable_type' => 'Good Receipt']);
 
         DB::table('stock_movements')

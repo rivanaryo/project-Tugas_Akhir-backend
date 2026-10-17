@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('sales-orders', [SalesOrderController::class, 'index']);
 Route::post('sales-orders', [SalesOrderController::class, 'store']);
 Route::get('sales-orders/{id}', [SalesOrderController::class, 'show']);
+Route::get('sales-orders/{id}/balance', [SalesOrderController::class, 'balance']);
 Route::match(['put', 'patch'], 'sales-orders/{id}', [SalesOrderController::class, 'update']);
 Route::delete('sales-orders/{id}', [SalesOrderController::class, 'destroy']);
 
@@ -41,6 +42,7 @@ Route::delete('sales-deliveries/{salesDeliveryId}/items/{id}', [SalesDeliveryIte
 Route::get('invoices', [InvoiceController::class, 'index']);
 Route::post('invoices', [InvoiceController::class, 'store']);
 Route::get('invoices/{id}', [InvoiceController::class, 'show']);
+Route::get('invoices/{id}/balance', [InvoiceController::class, 'balance']);
 Route::match(['put', 'patch'], 'invoices/{id}', [InvoiceController::class, 'update']);
 Route::delete('invoices/{id}', [InvoiceController::class, 'destroy']);
 

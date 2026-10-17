@@ -25,6 +25,8 @@ class StoreAccountRequest extends FormRequest
         return [
             'account_name' => 'required|string|max:255',
             'account_number' => 'required|string|max:255|unique:m_accounts,account_number',
+            'type' => 'required|in:bank,cash',
+            'balance' => 'sometimes|numeric|min:0',
             'bank_name' => 'nullable|string|max:255',
             'is_active' => 'sometimes|boolean',
         ];

@@ -18,16 +18,16 @@ class ProductController extends Controller
         $this->repo = $repo;
     }
 
-    public function index():JsonResponse
+    public function index(\Illuminate\Http\Request $request): JsonResponse
     {
-        $products = $this->repo->paginate();
+        $perPage = (int) $request->get('per_page', 15);
+        $products = $this->repo->paginate($request->all(), $perPage);
 
         return response()->json([
             'success' => true,
             'message' => 'Daftar Produk berhasil diambil',
             'data' => $products,
-        ],200);
-
+        ], 200);
     }
 
     public function store(StoreProductRequest $request): JsonResponse

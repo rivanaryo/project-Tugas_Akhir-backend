@@ -50,3 +50,48 @@ php artisan route:list
 php artisan test
 php artisan migrate
 ```
+
+## Routing & Middleware
+
+- RouteServiceProvider tidak digunakan; route dikonfigurasi di `bootstrap/app.php` dan didaftarkan oleh module ServiceProviders.
+- Endpoint admin/modul menggunakan middleware: `['api', 'auth:sanctum', 'role.admin']`.
+- Alias middleware:
+  - `jwt.auth` => `App\Modules\Admin\Middleware\AuthenticateJwt`
+  - `role.admin` => `App\Modules\Admin\Middleware\EnsureAdminRole`
+
+## Authentication
+
+- Model user admin: `App\Modules\Admin\Models\Admin`.
+- Tabel: `users` dengan UUID primary key.
+- Sanctum digunakan untuk middleware `auth:sanctum`.
+- Untuk feature test, autentikasi menggunakan `Laravel\Sanctum\Sanctum::actingAs($admin, [], 'sanctum')`.
+
+## Response Format
+
+- Format JSON standar:
+
+  ```json
+  {
+    "success": true,
+    "message": "Pesan",
+    "data": {}
+  }
+  ```
+
+## Testing
+
+- PHPUnit dikonfigurasi di `phpunit.xml`.
+- Database test menggunakan SQLite in-memory (`DB_CONNECTION=sqlite`, `DB_DATABASE=:memory:`).
+- Jalankan test: `php artisan test`.
+
+## Code Style
+
+- Project menggunakan Laravel Pint.
+- Jalankan formatter: `vendor/bin/pint {path}`.
+
+## Tech Pack
+
+- Modul berada di `app/Modules/Rd/TechPack`.
+- Model: `TechPack`, `TechPackSizeChart`, `TechPackCosting`, `TechPackBomItem`.
+- Service perhitungan: `App\Modules\Rd\TechPack\Services\TechPackCostingService`.
+- Field hasil kalkulasi (`bom_items.total`, `costing.material_cost`, `costing.hpp`, `costing.sell_price`) tidak boleh diisi frontend; dihitung backend.

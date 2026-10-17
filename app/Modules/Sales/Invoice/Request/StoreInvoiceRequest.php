@@ -27,6 +27,7 @@ class StoreInvoiceRequest extends FormRequest
             'invoice_date' => 'required|date',
             'customer_id' => 'required|exists:m_customer,id',
             'sales_order_id' => 'required|exists:sales_order,id',
+            'type' => 'required|in:dp,pelunasan',
             'status' => 'required|in:pending,approved,paid,cancelled',
             'items' => 'nullable|array',
             'items.*.sales_order_item_id' => 'required_with:items|exists:sales_order_items,id',

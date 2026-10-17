@@ -18,7 +18,7 @@ class SalesServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        Route::middleware(['api', 'jwt.auth', 'role.admin'])
+        Route::middleware(['api', 'auth:sanctum', 'role.admin'])
             ->prefix('api/sales')
             ->as('sales.')
             ->group(__DIR__.'/Routes/api.php');

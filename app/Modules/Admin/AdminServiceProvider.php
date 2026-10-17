@@ -16,9 +16,10 @@ class AdminServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        Route::middleware('api')
+        Route::middleware(['api'])
             ->prefix('api/admin')
             ->as('admin.')
             ->group(__DIR__.'/routes/api.php');
+
     }
 }

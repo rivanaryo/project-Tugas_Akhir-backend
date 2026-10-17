@@ -2,7 +2,7 @@
 
 namespace App\Modules\Inventory\Exports\Sheets;
 
-use App\Modules\Inventory\PurchaseOrder\Models\PurchaseOrder;
+use App\Modules\Production\PurchaseOrder\Models\PurchaseOrder;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;

@@ -48,11 +48,13 @@ class StockMovementRepositories
     public function createMovement(array $data, ?string $userId): StockMovement
     {
         return DB::transaction(function () use ($data, $userId) {
+            $type = $this->normalizeType($data['type'] ?? null);
+
             $product = Product::lockForUpdate()->findOrFail($data['m_products_id']);
             
             $stockBefore = $product->stock_level;
             
-            $stockAfter = $data['type'] === 'in' 
+            $stockAfter = $type === 'In' 
                 ? $stockBefore + $data['quantity'] 
                 : $stockBefore - $data['quantity'];
 
@@ -61,7 +63,7 @@ class StockMovementRepositories
             return $this->model->create([
                 'm_products_id' => $data['m_products_id'],
                 'm_warehouses_id' => $data['m_warehouses_id'],
-                'type' => $data['type'],
+                'type' => $type,
                 'quantity' => $data['quantity'],
                 'stock_before' => $stockBefore,
                 'stock_after' => $stockAfter,
@@ -77,6 +79,9 @@ class StockMovementRepositories
     public function create(array $payload): StockMovement
     {
         return DB::transaction(function () use ($payload): StockMovement {
+            if (isset($payload['type'])) {
+                $payload['type'] = $this->normalizeType($payload['type']);
+            }
             return $this->model->create($payload);
         });
     }
@@ -127,6 +132,12 @@ class StockMovementRepositories
                 ->orWhereHas('product', fn (Builder $q) => $q->where('name', 'like', "%{$search}%"))
                 ->orWhereHas('warehouse', fn (Builder $q) => $q->where('name', 'like', "%{$search}%"));
         });
+    }
+
+    private function normalizeType(mixed $type): string
+    {
+        $type = ucfirst(strtolower(trim((string) $type)));
+        return in_array($type, ['In', 'Out'], true) ? $type : 'In';
     }
 
     private function normalizeString(mixed $value): ?string

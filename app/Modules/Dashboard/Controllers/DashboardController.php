@@ -17,15 +17,18 @@ class DashboardController extends Controller
     {
         $page = (int) $request->get('page', 1);
         $perPage = (int) $request->get('per_page', 10);
+        $woLimit = (int) $request->get('active_work_orders_limit', 10);
 
         $kpi = $this->service->getKpi();
         $pipeline = $this->service->getPipeline($page, $perPage);
+        $activeWorkOrders = $this->service->getActiveWorkOrders($woLimit);
 
         return response()->json([
             'success' => true,
             'data' => [
                 'kpi' => $kpi,
                 'pipeline' => $pipeline,
+                'active_work_orders' => $activeWorkOrders,
             ],
         ]);
     }

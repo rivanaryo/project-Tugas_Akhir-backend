@@ -31,7 +31,7 @@ class UpdateStockOpnameRequest extends FormRequest
             'notes' => 'sometimes|nullable|string',
             'items' => 'sometimes|array',
             'items.*.product_id' => 'required_with:items|uuid|exists:m_products,id',
-            'items.*.system_qty' => 'required_with:items|integer|min:0',
+            'items.*.system_qty' => 'nullable|integer|min:0',
             'items.*.physical_qty' => 'required_with:items|integer|min:0',
             'items.*.notes' => 'nullable|string|max:255',
         ];

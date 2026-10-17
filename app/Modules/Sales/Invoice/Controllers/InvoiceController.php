@@ -41,6 +41,33 @@ class InvoiceController extends Controller
         ], 201);
     }
 
+    public function balance(string $id): JsonResponse
+    {
+        $invoice = $this->repo->findById($id);
+
+        if (!$invoice) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invoice tidak ditemukan',
+            ], 404);
+        }
+
+        $grandTotal = (float) $invoice->grand_total;
+        $paid = (float) \App\Modules\Finance\CustomerPayment\Models\CustomerPayment::where('sales_order_id', $invoice->sales_order_id)
+            ->where('status', 'paid')
+            ->sum('amount');
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Balance invoice berhasil diambil',
+            'data' => [
+                'grand_total' => $grandTotal,
+                'paid' => $paid,
+                'remaining' => max(0, $grandTotal - $paid),
+            ],
+        ]);
+    }
+
     public function show(string $id): JsonResponse
     {
         $invoice = $this->repo->findById($id);

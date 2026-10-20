@@ -3,18 +3,16 @@
 namespace App\Modules\Production\PurchaseOrder\Controllers;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
+use App\Modules\Production\PurchaseOrder\DTOs\PurchaseOrderDTO;
 use App\Modules\Production\PurchaseOrder\Repositories\PurchaseOrderRepositories;
 use App\Modules\Production\PurchaseOrder\Request\StorePurchaseOrderRequest;
 use App\Modules\Production\PurchaseOrder\Request\UpdatePurchaseOrderRequest;
-use App\Modules\Production\PurchaseOrder\DTOs\PurchaseOrderDTO;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class PurchaseOrderController extends Controller
 {
-    public function __construct(private readonly PurchaseOrderRepositories $repo)
-    {
-    }
+    public function __construct(private readonly PurchaseOrderRepositories $repo) {}
 
     public function index(Request $request): JsonResponse
     {

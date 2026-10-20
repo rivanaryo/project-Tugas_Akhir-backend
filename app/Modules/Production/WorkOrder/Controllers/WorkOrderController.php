@@ -4,10 +4,10 @@ namespace App\Modules\Production\WorkOrder\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Modules\Production\WorkOrder\Models\WorkOrder;
-use App\Modules\Production\WorkOrder\Request\StoreWorkOrderRequest;
-use App\Modules\Production\WorkOrder\Request\UpdateWorkOrderRequest;
 use App\Modules\Production\WorkOrder\Request\FromSalesOrderRequest;
+use App\Modules\Production\WorkOrder\Request\StoreWorkOrderRequest;
 use App\Modules\Production\WorkOrder\Request\UpdateStageRequest;
+use App\Modules\Production\WorkOrder\Request\UpdateWorkOrderRequest;
 use App\Modules\Production\WorkOrder\Resources\WorkOrderResource;
 use App\Modules\Sales\SalesOrder\Models\SalesOrder;
 use Illuminate\Http\JsonResponse;
@@ -19,18 +19,23 @@ class WorkOrderController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
-        $query = WorkOrder::with(['salesOrder', 'product', 'techPack'])->latest();
+        $query = WorkOrder::with(['salesOrder.customer', 'product', 'techPack'])->latest();
 
         if ($status = $request->get('status')) {
             $query->where('status', $status);
         }
 
         if ($stage = $request->get('stage')) {
-            $query->where('stage', $stage);
+            $stages = array_filter(array_map('trim', explode(',', $stage)));
+            $query->whereIn('stage', $stages);
         }
 
         if ($salesOrderId = $request->get('sales_order_id')) {
             $query->where('sales_order_id', $salesOrderId);
+        }
+
+        if ($productId = $request->get('product_id')) {
+            $query->where('product_id', $productId);
         }
 
         if ($from = $request->get('date_from')) {
@@ -50,22 +55,28 @@ class WorkOrderController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Daftar work order berhasil diambil',
-            'data' => WorkOrderResource::collection($workOrders),
+            'message' => 'Work orders retrieved successfully',
+            'data' => [
+                'current_page' => $workOrders->currentPage(),
+                'per_page' => $workOrders->perPage(),
+                'last_page' => $workOrders->lastPage(),
+                'total' => $workOrders->total(),
+                'data' => WorkOrderResource::collection($workOrders->getCollection())->resolve(),
+            ],
         ]);
     }
 
     public function store(StoreWorkOrderRequest $request): JsonResponse
     {
         $data = $request->validated();
-        $data['progress'] = WorkOrder::stageToProgress($data['stage']);
+        $data['progress'] = WorkOrder::resolveProgress($data['stage'], $data['status']);
 
         $workOrder = WorkOrder::create($data);
 
         return response()->json([
             'success' => true,
             'message' => 'Work order berhasil dibuat',
-            'data' => new WorkOrderResource($workOrder->load(['salesOrder', 'product', 'techPack'])),
+            'data' => new WorkOrderResource($workOrder->load(['salesOrder.customer', 'product', 'techPack'])),
         ], 201);
     }
 
@@ -74,23 +85,23 @@ class WorkOrderController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Detail work order berhasil diambil',
-            'data' => new WorkOrderResource($workOrder->load(['salesOrder', 'product', 'techPack'])),
+            'data' => new WorkOrderResource($workOrder->load(['salesOrder.customer', 'product', 'techPack'])),
         ]);
     }
 
     public function update(UpdateWorkOrderRequest $request, WorkOrder $workOrder): JsonResponse
     {
         $data = $request->validated();
-        if (isset($data['stage'])) {
-            $data['progress'] = WorkOrder::stageToProgress($data['stage']);
-        }
+        $stage = $data['stage'] ?? $workOrder->stage;
+        $status = $data['status'] ?? $workOrder->status;
+        $data['progress'] = WorkOrder::resolveProgress($stage, $status, $workOrder->progress);
 
         $workOrder->update($data);
 
         return response()->json([
             'success' => true,
             'message' => 'Work order berhasil diperbarui',
-            'data' => new WorkOrderResource($workOrder->load(['salesOrder', 'product', 'techPack'])),
+            'data' => new WorkOrderResource($workOrder->load(['salesOrder.customer', 'product', 'techPack'])),
         ]);
     }
 
@@ -110,20 +121,23 @@ class WorkOrderController extends Controller
 
         $workOrders = DB::transaction(function () use ($salesOrder) {
             $created = [];
+            $startDate = $salesOrder->order_date ?? today();
             foreach ($salesOrder->items as $item) {
                 $wo = WorkOrder::create([
-                    'wo_number' => 'SPK-' . strtoupper(Str::random(4)) . '-' . str_pad((string) random_int(1, 999), 3, '0', STR_PAD_LEFT),
+                    'wo_number' => 'SPK-'.strtoupper(Str::random(4)).'-'.str_pad((string) random_int(1, 999), 3, '0', STR_PAD_LEFT),
                     'sales_order_id' => $salesOrder->id,
                     'product_id' => $item->product_id,
                     'quantity' => $item->quantity,
                     'stage' => 'cutting',
                     'status' => 'in-progress',
+                    'start_date' => $startDate,
+                    'due_date' => $startDate->copy()->addDays(7),
                     'progress' => WorkOrder::stageToProgress('cutting'),
                 ]);
                 $created[] = $wo;
             }
 
-            if (!in_array($salesOrder->status, ['in_production', 'completed'], true)) {
+            if (! in_array($salesOrder->status, ['in_production', 'completed'], true)) {
                 $salesOrder->updateStatus('in_production');
             }
 
@@ -134,7 +148,7 @@ class WorkOrderController extends Controller
             'success' => true,
             'message' => 'Work order berhasil dibuat dari sales order',
             'data' => WorkOrderResource::collection(
-                WorkOrder::with(['salesOrder', 'product', 'techPack'])->whereIn('id', collect($workOrders)->pluck('id'))->get()
+                WorkOrder::with(['salesOrder.customer', 'product', 'techPack'])->whereIn('id', collect($workOrders)->pluck('id'))->get()
             ),
         ], 201);
     }
@@ -152,7 +166,7 @@ class WorkOrderController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Stage work order berhasil diperbarui',
-            'data' => new WorkOrderResource($workOrder->load(['salesOrder', 'product', 'techPack'])),
+            'data' => new WorkOrderResource($workOrder->load(['salesOrder.customer', 'product', 'techPack'])),
         ]);
     }
 }

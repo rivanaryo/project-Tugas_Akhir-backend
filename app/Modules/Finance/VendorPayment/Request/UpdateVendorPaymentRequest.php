@@ -23,7 +23,7 @@ class UpdateVendorPaymentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'payment_number' => 'required|unique:vendor_payments,payment_number,' . $this->route('vendorPayment'),
+            'payment_number' => 'required|unique:vendor_payments,payment_number,'.$this->route('vendorPayment'),
             'vendor_id' => 'required|exists:m_vendor,id',
             'vendor_invoice_number' => 'nullable|string',
             'payment_type' => 'required|in:cash,transfer,giro,downpayment',

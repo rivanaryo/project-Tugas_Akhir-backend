@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Modules\Finance\VendorPayment\Repositories;
+
 use App\Modules\Finance\VendorPayment\Models\VendorPayment;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -9,9 +10,7 @@ use Illuminate\Support\Facades\DB;
 
 class VendorPaymentRepositories
 {
-    public function __construct(private readonly VendorPayment $model)
-    {
-    }
+    public function __construct(private readonly VendorPayment $model) {}
 
     public function paginate(array $filters = [], int $perPage = 15): LengthAwarePaginator
     {
@@ -39,6 +38,7 @@ class VendorPaymentRepositories
     {
         return DB::transaction(function () use ($payload): VendorPayment {
             $payload['status'] = $payload['status'] ?? 'paid';
+
             return $this->model->create($this->preparePayload($payload));
         });
     }
@@ -61,9 +61,10 @@ class VendorPaymentRepositories
     private function baseQuery(array $filters = []): Builder
     {
         $query = $this->model->newQuery()->latest('created_at');
+
         return $this->applyFilters($query, $filters);
     }
-    
+
     private function applyFilters(Builder $query, array $filters): Builder
     {
         $search = $this->normalizeString($filters['search'] ?? null);
@@ -128,6 +129,7 @@ class VendorPaymentRepositories
 
         if (function_exists('bcmul') && function_exists('bcdiv')) {
             $rate = (string) bcdiv($taxRate, '100', 6);
+
             return (string) bcmul($totalPaid, $rate, 2);
         }
 
@@ -135,5 +137,4 @@ class VendorPaymentRepositories
 
         return number_format($taxAmount, 2, '.', '');
     }
-
 }

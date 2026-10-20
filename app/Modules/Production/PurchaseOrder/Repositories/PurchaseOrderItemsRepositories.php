@@ -1,17 +1,16 @@
 <?php
+
 namespace App\Modules\Production\PurchaseOrder\Repositories;
 
 use App\Modules\Production\PurchaseOrder\Reference\Models\PurchaseOrderItems;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
 
 class PurchaseOrderItemsRepositories
 {
-    public function __construct(private readonly PurchaseOrderItems $model)
-    {
-    }
+    public function __construct(private readonly PurchaseOrderItems $model) {}
 
     public function paginate(array $filters = [], int $perPage = 15): LengthAwarePaginator
     {
@@ -47,6 +46,7 @@ class PurchaseOrderItemsRepositories
         return DB::transaction(function () use ($id, $payload): PurchaseOrderItems {
             $purchaseOrderItems = $this->findOrFail($id);
             $purchaseOrderItems->update($payload);
+
             return $purchaseOrderItems->fresh() ?? $purchaseOrderItems;
         });
     }
@@ -60,7 +60,7 @@ class PurchaseOrderItemsRepositories
     {
         $query = $this->model
             ->newQuery()
-            ->with(['purchaseOrder', 'pricelist.vendor', 'pricelist.product'])
+            ->with(['purchaseOrder', 'product', 'unit'])
             ->latest('created_at');
 
         return $this->applyFilters($query, $filters);
@@ -70,12 +70,12 @@ class PurchaseOrderItemsRepositories
     {
         $purchaseOrderId = $this->normalizeString($filters['purchase_order_id'] ?? null);
         $productId = $this->normalizeString($filters['product_id'] ?? null);
-        $pricelistId = $this->normalizeString($filters['pricelist_id'] ?? null);
+        $unitId = $this->normalizeString($filters['unit_id'] ?? null);
 
         return $query
             ->when($purchaseOrderId !== null, fn (Builder $q): Builder => $q->where('purchase_order_id', $purchaseOrderId))
             ->when($productId !== null, fn (Builder $q): Builder => $q->where('product_id', $productId))
-            ->when($pricelistId !== null, fn (Builder $q): Builder => $q->where('pricelist_id', $pricelistId));
+            ->when($unitId !== null, fn (Builder $q): Builder => $q->where('unit_id', $unitId));
     }
 
     private function normalizeString(mixed $value): ?string
@@ -88,5 +88,4 @@ class PurchaseOrderItemsRepositories
 
         return $value === '' ? null : $value;
     }
-
 }

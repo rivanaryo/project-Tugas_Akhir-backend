@@ -1,10 +1,10 @@
 <?php
+
 namespace App\Modules\Production\GoodReceipt\Repositories;
 
-use App\Modules\Production\GoodReceipt\Models\GoodReceipt;
-use App\Modules\Production\PurchaseOrder\Models\PurchaseOrder;
 use App\Modules\Inventory\StockMovement\Repositories\StockMovementRepositories;
 use App\Modules\MasterData\DataProduk\Models\Product;
+use App\Modules\Production\GoodReceipt\Models\GoodReceipt;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -15,9 +15,8 @@ class GoodReceiptRepositories
     public function __construct(
         private readonly GoodReceipt $model,
         private readonly StockMovementRepositories $stockMovementRepo,
-    ) {
-    }
-    
+    ) {}
+
     private function baseQuery(array $filters = []): Builder
     {
         $query = $this->model
@@ -118,13 +117,12 @@ class GoodReceiptRepositories
             foreach ($items as $item) {
                 // Ambil data dari purchase order item untuk sinkronisasi product/pricelist
                 $poItem = DB::table('purchase_order_items')->where('id', $item['purchase_order_item_id'])->first();
-                
+
                 if ($poItem) {
                     $goodReceipt->items()->create([
                         'purchase_order_item_id' => $item['purchase_order_item_id'],
                         'qty_received' => $item['qty_received'],
                         'product_id' => $poItem->product_id,
-                        'pricelist_id' => $poItem->pricelist_id,
                     ]);
                 }
             }
@@ -136,6 +134,7 @@ class GoodReceiptRepositories
             }
 
             $this->syncPurchaseOrderStatus($goodReceipt);
+
             return $goodReceipt;
         });
     }
@@ -149,20 +148,19 @@ class GoodReceiptRepositories
             $goodReceipt = $this->findOrFail($id);
             $goodReceipt->update($this->preparePayload($payload));
 
-            if (!empty($items)) {
+            if (! empty($items)) {
                 // Sederhana: Hapus yang lama dan masukkan yang baru jika items dikirim
                 // Atau bisa juga logic sync yang lebih kompleks
                 $goodReceipt->items()->delete();
-                
+
                 foreach ($items as $item) {
                     $poItem = DB::table('purchase_order_items')->where('id', $item['purchase_order_item_id'])->first();
-                    
+
                     if ($poItem) {
                         $goodReceipt->items()->create([
                             'purchase_order_item_id' => $item['purchase_order_item_id'],
                             'qty_received' => $item['qty_received'],
                             'product_id' => $poItem->product_id,
-                            'pricelist_id' => $poItem->pricelist_id,
                         ]);
                     }
                 }
@@ -177,6 +175,7 @@ class GoodReceiptRepositories
             }
 
             $this->syncPurchaseOrderStatus($goodReceipt);
+
             return $goodReceipt;
         });
     }
@@ -250,5 +249,4 @@ class GoodReceiptRepositories
 
         return array_filter($payload, static fn ($value): bool => $value !== null);
     }
-
 }

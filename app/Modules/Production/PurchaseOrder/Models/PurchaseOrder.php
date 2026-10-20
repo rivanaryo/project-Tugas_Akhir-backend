@@ -2,12 +2,12 @@
 
 namespace App\Modules\Production\PurchaseOrder\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
-use App\Modules\MasterData\ManagementVendor\Models\Vendor;
-use App\Modules\Production\PurchaseOrder\Reference\Models\PurchaseOrderItems;
-use App\Modules\Production\GoodReceipt\Models\GoodReceipt;
 use App\Modules\Inventory\StockMovement\Models\StockMovement;
+use App\Modules\MasterData\ManagementVendor\Models\Vendor;
+use App\Modules\Production\GoodReceipt\Models\GoodReceipt;
+use App\Modules\Production\PurchaseOrder\Reference\Models\PurchaseOrderItems;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Model;
 
 class PurchaseOrder extends Model
 {
@@ -46,7 +46,4 @@ class PurchaseOrder extends Model
     {
         return $this->morphMany(StockMovement::class, 'referenceable');
     }
-
-
-
 }

@@ -26,6 +26,7 @@ class PredictRopCommand extends Command
 
         if ($result === null) {
             $this->error('Gagal mendapatkan prediksi dari ML service.');
+
             return self::FAILURE;
         }
 

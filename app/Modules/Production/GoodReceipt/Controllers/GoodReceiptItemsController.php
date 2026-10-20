@@ -3,22 +3,21 @@
 namespace App\Modules\Production\GoodReceipt\Controllers;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
 use App\Modules\Production\GoodReceipt\DTOs\GoodReceiptItemsDTO;
 use App\Modules\Production\GoodReceipt\Repositories\GoodReceiptItemsRepositories;
 use App\Modules\Production\GoodReceipt\Repositories\GoodReceiptRepositories;
 use App\Modules\Production\GoodReceipt\Request\StoreGoodReceiptItemsRequest;
 use App\Modules\Production\GoodReceipt\Request\UpdateGoodReceiptItemsRequest;
 use App\Modules\Production\PurchaseOrder\Reference\Models\PurchaseOrderItems;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class GoodReceiptItemsController extends Controller
 {
     public function __construct(
         private readonly GoodReceiptItemsRepositories $repo,
         private readonly GoodReceiptRepositories $goodReceiptRepo,
-    ) {
-    }
+    ) {}
 
     public function index(Request $request): JsonResponse
     {
@@ -90,7 +89,6 @@ class GoodReceiptItemsController extends Controller
             ], 422);
         }
 
-        $payload['pricelist_id'] = $purchaseOrderItem->pricelist_id;
         $payload['product_id'] = $purchaseOrderItem->product_id;
 
         $item = $this->repo->create($payload);
@@ -154,7 +152,6 @@ class GoodReceiptItemsController extends Controller
             ], 422);
         }
 
-        $payload['pricelist_id'] = $purchaseOrderItem->pricelist_id;
         $payload['product_id'] = $purchaseOrderItem->product_id;
 
         $item = $this->repo->update($goodReceiptItem, $payload);

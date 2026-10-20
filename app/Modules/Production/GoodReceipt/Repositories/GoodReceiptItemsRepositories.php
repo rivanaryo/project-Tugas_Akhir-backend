@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Modules\Production\GoodReceipt\Repositories;
 
 use App\Modules\Production\GoodReceipt\Reference\Models\GoodReceiptItems;
@@ -11,9 +12,8 @@ class GoodReceiptItemsRepositories
 {
     public function __construct(
         private readonly GoodReceiptItems $model
-    ) {
-    }
-    
+    ) {}
+
     private function baseQuery(array $filters = []): Builder
     {
         $query = $this->model
@@ -21,7 +21,6 @@ class GoodReceiptItemsRepositories
             ->with([
                 'goodReceipt',
                 'purchaseOrderItem.purchaseOrder',
-                'pricelist.vendor',
                 'product',
             ])
             ->latest('created_at');
@@ -33,18 +32,16 @@ class GoodReceiptItemsRepositories
     {
         $goodReceiptId = $this->normalizeString($filters['good_receipt_id'] ?? null);
         $purchaseOrderItemId = $this->normalizeString($filters['purchase_order_item_id'] ?? null);
-        $pricelistId = $this->normalizeString($filters['pricelist_id'] ?? null);
         $productId = $this->normalizeString($filters['product_id'] ?? null);
         $search = $this->normalizeString($filters['q'] ?? ($filters['search'] ?? null));
 
         return $query
             ->when($goodReceiptId !== null, fn (Builder $q): Builder => $q->where('good_receipt_id', $goodReceiptId))
             ->when($purchaseOrderItemId !== null, fn (Builder $q): Builder => $q->where('purchase_order_item_id', $purchaseOrderItemId))
-            ->when($pricelistId !== null, fn (Builder $q): Builder => $q->where('pricelist_id', $pricelistId))
             ->when($productId !== null, fn (Builder $q): Builder => $q->where('product_id', $productId))
             ->when($search !== null, fn (Builder $q): Builder => $this->applySearch($q, $search));
     }
-    
+
     private function applySearch(Builder $query, string $search): Builder
     {
         return $query->where(function (Builder $innerQuery) use ($search): void {
@@ -59,9 +56,6 @@ class GoodReceiptItemsRepositories
                 })
                 ->orWhereHas('product', function (Builder $productQuery) use ($search): void {
                     $productQuery->where('product_name', 'like', "%{$search}%");
-                })
-                ->orWhereHas('pricelist.vendor', function (Builder $vendorQuery) use ($search): void {
-                    $vendorQuery->where('vendor_name', 'like', "%{$search}%");
                 });
         });
     }
@@ -95,22 +89,27 @@ class GoodReceiptItemsRepositories
             return $this->model->create($this->preparePayload($payload));
         });
     }
+
     public function findById(int|string $id): ?GoodReceiptItems
     {
         return $this->baseQuery()->find($id);
     }
+
     public function findOrFail(int|string $id): GoodReceiptItems
     {
         return $this->baseQuery()->findOrFail($id);
     }
+
     public function update(int|string $id, array $payload): GoodReceiptItems
     {
         return DB::transaction(function () use ($id, $payload): GoodReceiptItems {
             $goodReceiptItems = $this->findOrFail($id);
             $goodReceiptItems->update($this->preparePayload($payload));
+
             return $goodReceiptItems->fresh() ?? $goodReceiptItems;
         });
     }
+
     public function delete(int|string $id): void
     {
         DB::transaction(fn (): bool => (bool) $this->findOrFail($id)->delete());

@@ -58,6 +58,7 @@ class PurchaseOrderCalculator
 
         if (function_exists('bcmul') && function_exists('bcdiv')) {
             $rate = (string) bcdiv($taxRate, '100', 6);
+
             return (string) bcmul($subtotal, $rate, 2);
         }
 

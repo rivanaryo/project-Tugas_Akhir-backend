@@ -14,12 +14,12 @@ return new class extends Migration
             $table->foreignUuid('sales_order_id')->constrained('sales_order');
             $table->foreignUuid('product_id')->constrained('m_products');
             $table->foreignUuid('tech_pack_id')->nullable()->constrained('tech_packs')->nullOnDelete();
-            $table->integer('quantity')->default(0);
-            $table->enum('stage', ['cutting', 'printing', 'sewing', 'qc', 'ready'])->default('cutting');
-            $table->enum('status', ['draft', 'in-progress', 'completed', 'cancelled'])->default('draft');
-            $table->date('start_date')->nullable();
-            $table->date('due_date')->nullable();
-            $table->tinyInteger('progress')->default(0);
+            $table->unsignedInteger('quantity');
+            $table->enum('stage', ['cutting', 'printing', 'sewing', 'qc', 'ready'])->default('cutting')->index();
+            $table->enum('status', ['draft', 'in-progress', 'completed', 'cancelled'])->default('draft')->index();
+            $table->date('start_date');
+            $table->date('due_date');
+            $table->unsignedTinyInteger('progress')->default(0);
             $table->timestamps();
         });
     }

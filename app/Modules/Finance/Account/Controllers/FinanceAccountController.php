@@ -20,10 +20,12 @@ class FinanceAccountController extends Controller
 
         $data = $accounts->through(fn ($account) => [
             'id' => $account->id,
-            'name' => $account->account_name,
+            'account_name' => $account->account_name,
             'account_number' => $account->account_number,
             'type' => $account->type,
-            'balance' => $account->balance,
+            'bank_name' => $account->bank_name,
+            'opening_balance' => (float) $account->opening_balance,
+            'balance' => (float) $account->balance,
             'is_active' => $account->is_active,
         ]);
 

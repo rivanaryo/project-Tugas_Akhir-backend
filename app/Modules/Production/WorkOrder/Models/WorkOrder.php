@@ -2,11 +2,11 @@
 
 namespace App\Modules\Production\WorkOrder\Models;
 
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
-use Illuminate\Database\Eloquent\Model;
 use App\Modules\MasterData\DataProduk\Models\Product;
 use App\Modules\Rd\TechPack\Models\TechPack;
 use App\Modules\Sales\SalesOrder\Models\SalesOrder;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Model;
 
 class WorkOrder extends Model
 {
@@ -25,6 +25,7 @@ class WorkOrder extends Model
         'start_date',
         'due_date',
         'progress',
+        'priority',
     ];
 
     protected $casts = [
@@ -52,12 +53,21 @@ class WorkOrder extends Model
     public static function stageToProgress(string $stage): int
     {
         return match ($stage) {
-            'cutting' => 20,
-            'printing' => 40,
-            'sewing' => 60,
-            'qc' => 80,
+            'cutting' => 0,
+            'printing' => 25,
+            'sewing' => 50,
+            'qc' => 75,
             'ready' => 100,
             default => 0,
+        };
+    }
+
+    public static function resolveProgress(string $stage, string $status, int $currentProgress = 0): int
+    {
+        return match ($status) {
+            'completed' => 100,
+            'cancelled' => $currentProgress,
+            default => self::stageToProgress($stage),
         };
     }
 }

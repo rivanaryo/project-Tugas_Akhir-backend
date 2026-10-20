@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Modules\Production\PurchaseOrder\Repositories;
 
 use App\Modules\Production\PurchaseOrder\Models\PurchaseOrder;
@@ -9,9 +10,7 @@ use Illuminate\Support\Facades\DB;
 
 class PurchaseOrderRepositories
 {
-    public function __construct(private readonly PurchaseOrder $model)
-    {
-    }
+    public function __construct(private readonly PurchaseOrder $model) {}
 
     public function paginate(array $filters = [], int $perPage = 15): LengthAwarePaginator
     {
@@ -47,6 +46,7 @@ class PurchaseOrderRepositories
         return DB::transaction(function () use ($id, $payload): PurchaseOrder {
             $purchaseOrder = $this->findOrFail($id);
             $purchaseOrder->update($payload);
+
             return $purchaseOrder->fresh() ?? $purchaseOrder;
         });
     }
@@ -60,7 +60,7 @@ class PurchaseOrderRepositories
     {
         $query = $this->model
             ->newQuery()
-            ->with(['vendor', 'items.product', 'items.pricelist.vendor', 'items.pricelist.product'])
+            ->with(['vendor', 'items.product', 'items.unit'])
             ->latest('created_at');
 
         return $this->applyFilters($query, $filters);
@@ -106,5 +106,4 @@ class PurchaseOrderRepositories
 
         return $value === '' ? null : $value;
     }
-
 }

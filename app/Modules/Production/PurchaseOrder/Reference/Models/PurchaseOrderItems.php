@@ -2,29 +2,30 @@
 
 namespace App\Modules\Production\PurchaseOrder\Reference\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use App\Modules\MasterData\DataProduk\Models\Product;
-use App\Modules\MasterData\ManagementPricelist\Models\Pricelist;
-use App\Modules\Production\PurchaseOrder\Models\PurchaseOrder;
+use App\Modules\MasterData\DataProduk\References\Models\Units;
 use App\Modules\Production\GoodReceipt\Reference\Models\GoodReceiptItems;
-
+use App\Modules\Production\PurchaseOrder\Models\PurchaseOrder;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Model;
 
 class PurchaseOrderItems extends Model
 {
     use HasUuids;
+
     protected $table = 'purchase_order_items';
-    
+
     protected $fillable = [
         'purchase_order_id',
         'product_id',
-        'pricelist_id',
+        'unit_id',
         'quantity',
         'unit_price',
         'tax_rate',
         'tax_amount',
         'total_price',
     ];
+
     protected $casts = [
         'id' => 'string',
     ];
@@ -39,9 +40,9 @@ class PurchaseOrderItems extends Model
         return $this->belongsTo(Product::class, 'product_id', 'id');
     }
 
-    public function pricelist()
+    public function unit()
     {
-        return $this->belongsTo(Pricelist::class, 'pricelist_id', 'id');
+        return $this->belongsTo(Units::class, 'unit_id', 'id');
     }
 
     public function goodReceiptsItems()

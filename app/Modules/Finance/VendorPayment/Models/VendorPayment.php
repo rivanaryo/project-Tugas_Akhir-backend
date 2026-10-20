@@ -2,14 +2,15 @@
 
 namespace App\Modules\Finance\VendorPayment\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use App\Modules\MasterData\ManagementAccount\Models\Account;
 use App\Modules\MasterData\ManagementVendor\Models\Vendor;
-use App\Modules\MasterData\ManagementAccount\Models\Account; 
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Model;
 
 class VendorPayment extends Model
 {
     use HasUuids;
+
     protected $table = 'vendor_payments';
 
     protected $fillable = [
@@ -32,12 +33,13 @@ class VendorPayment extends Model
         'payment_date' => 'date',
     ];
 
-    public function vendors(){
+    public function vendors()
+    {
         return $this->belongsTo(Vendor::class, 'vendor_id');
     }
-    
-    public function accounts(){
+
+    public function accounts()
+    {
         return $this->belongsTo(Account::class, 'account_id');
     }
-
 }

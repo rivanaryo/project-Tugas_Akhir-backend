@@ -34,7 +34,13 @@ class SizeChartController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Daftar size chart berhasil diambil',
-            'data' => SizeChartResource::collection($sizeCharts),
+            'data' => [
+                'current_page' => $sizeCharts->currentPage(),
+                'data' => SizeChartResource::collection($sizeCharts->getCollection())->resolve(),
+                'last_page' => $sizeCharts->lastPage(),
+                'per_page' => $sizeCharts->perPage(),
+                'total' => $sizeCharts->total(),
+            ],
         ]);
     }
 

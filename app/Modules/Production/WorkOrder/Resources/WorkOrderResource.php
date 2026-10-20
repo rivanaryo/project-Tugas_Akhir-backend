@@ -15,6 +15,10 @@ class WorkOrderResource extends JsonResource
             'sales_order' => $this->whenLoaded('salesOrder', fn () => [
                 'id' => $this->salesOrder->id,
                 'order_number' => $this->salesOrder->order_number,
+                'customer' => $this->salesOrder->relationLoaded('customer') ? [
+                    'id' => $this->salesOrder->customer->id,
+                    'customer_name' => $this->salesOrder->customer->customer_name,
+                ] : null,
             ]),
             'product_id' => $this->product_id,
             'product' => $this->whenLoaded('product', fn () => [
@@ -32,6 +36,7 @@ class WorkOrderResource extends JsonResource
             'start_date' => $this->start_date?->format('Y-m-d'),
             'due_date' => $this->due_date?->format('Y-m-d'),
             'progress' => $this->progress,
+            'priority' => $this->priority,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

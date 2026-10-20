@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Modules\Finance\CustomerPayment\Models\CustomerPayment;
 use App\Modules\Finance\CustomerPayment\Request\StoreCustomerPaymentRequest;
 use App\Modules\Finance\CustomerPayment\Resources\CustomerPaymentResource;
+use App\Modules\Finance\Ledger\Models\FinanceTransaction;
+use App\Modules\Finance\Ledger\Services\FinanceLedgerService;
 use App\Modules\Sales\SalesOrder\Models\SalesOrder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -13,6 +15,8 @@ use Illuminate\Support\Facades\DB;
 
 class CustomerPaymentController extends Controller
 {
+    public function __construct(private readonly FinanceLedgerService $ledgerService) {}
+
     public function index(Request $request): JsonResponse
     {
         $query = CustomerPayment::with(['salesOrder', 'customer', 'account'])->latest();
@@ -61,11 +65,12 @@ class CustomerPaymentController extends Controller
             ], 422);
         }
 
-        $payment = DB::transaction(function () use ($data, $salesOrder) {
+        $payment = DB::transaction(function () use ($data, $salesOrder, $request) {
             $payment = CustomerPayment::create($data);
 
             if ($data['status'] === 'paid') {
                 $this->syncSalesOrderStatus($salesOrder);
+                $this->ledgerService->postCustomerPayment($payment, $request->user());
             }
 
             return $payment;
@@ -92,6 +97,18 @@ class CustomerPaymentController extends Controller
         $salesOrder = $customerPayment->salesOrder;
 
         DB::transaction(function () use ($customerPayment, $salesOrder) {
+            if ($customerPayment->status === 'paid') {
+                $transaction = FinanceTransaction::where('reference_type', 'customer_payment')
+                    ->where('reference_id', $customerPayment->id)
+                    ->where('direction', 'in')
+                    ->where('status', 'posted')
+                    ->first();
+
+                if ($transaction) {
+                    $this->ledgerService->voidTransaction($transaction);
+                }
+            }
+
             $customerPayment->delete();
             $this->syncSalesOrderStatus($salesOrder);
         });

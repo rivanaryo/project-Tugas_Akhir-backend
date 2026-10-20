@@ -2,11 +2,11 @@
 
 namespace App\Modules\Finance\CustomerPayment\Models;
 
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
-use Illuminate\Database\Eloquent\Model;
 use App\Modules\MasterData\ManagementAccount\Models\Account;
 use App\Modules\MasterData\ManagementCustomers\Models\Customer;
 use App\Modules\Sales\SalesOrder\Models\SalesOrder;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Model;
 
 class CustomerPayment extends Model
 {

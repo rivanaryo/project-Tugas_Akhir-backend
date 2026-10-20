@@ -11,7 +11,7 @@ class FinanceServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        $this->app->bind(VendorPaymentRepositories::class, fn (): VendorPaymentRepositories => new VendorPaymentRepositories(new VendorPayment()));
+        $this->app->bind(VendorPaymentRepositories::class, fn (): VendorPaymentRepositories => new VendorPaymentRepositories(new VendorPayment));
     }
 
     public function boot(): void

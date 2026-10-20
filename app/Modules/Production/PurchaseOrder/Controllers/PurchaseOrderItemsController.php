@@ -3,15 +3,14 @@
 namespace App\Modules\Production\PurchaseOrder\Controllers;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
+use App\Modules\Production\PurchaseOrder\DTOs\PurchaseOrderItemsDTO;
 use App\Modules\Production\PurchaseOrder\Repositories\PurchaseOrderItemsRepositories;
 use App\Modules\Production\PurchaseOrder\Repositories\PurchaseOrderRepositories;
 use App\Modules\Production\PurchaseOrder\Request\StorePurchaseOrderItemsRequest;
 use App\Modules\Production\PurchaseOrder\Request\UpdatePurchaseOrderItemsRequest;
-use App\Modules\Production\PurchaseOrder\DTOs\PurchaseOrderItemsDTO;
 use App\Modules\Production\PurchaseOrder\Services\PurchaseOrderCalculator;
-use App\Modules\MasterData\ManagementPricelist\Models\Pricelist;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class PurchaseOrderItemsController extends Controller
 {
@@ -19,9 +18,7 @@ class PurchaseOrderItemsController extends Controller
         private readonly PurchaseOrderItemsRepositories $repo,
         private readonly PurchaseOrderRepositories $purchaseOrderRepo,
         private readonly PurchaseOrderCalculator $calculator,
-    )
-    {
-    }
+    ) {}
 
     public function index(Request $request): JsonResponse
     {
@@ -40,24 +37,6 @@ class PurchaseOrderItemsController extends Controller
     {
         $dto = PurchaseOrderItemsDTO::fromRequest($request);
         $payload = $dto->toArray();
-
-        $purchaseOrder = $this->purchaseOrderRepo->findById((string) $payload['purchase_order_id']);
-        $pricelist = Pricelist::query()->find((string) $payload['pricelist_id']);
-
-        if ($purchaseOrder && $pricelist && $purchaseOrder->vendor_id !== $pricelist->vendor_id) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Vendor pada pricelist tidak sesuai dengan vendor pada purchase order',
-                'errors' => [
-                    'pricelist_id' => ['Vendor pada pricelist tidak sesuai dengan vendor pada purchase order'],
-                ],
-            ], 422);
-        }
-
-        if ($pricelist) {
-            $payload['product_id'] = $pricelist->product_id;
-            $payload['unit_price'] = (string) $pricelist->price;
-        }
 
         $payload = $this->calculator->applyTotalPrice($payload);
         $item = $this->repo->create($payload);
@@ -100,28 +79,6 @@ class PurchaseOrderItemsController extends Controller
 
         $dto = PurchaseOrderItemsDTO::fromUpdateRequest($request);
         $payload = $dto->toArray();
-
-        $purchaseOrderId = (string) ($payload['purchase_order_id'] ?? $existing->purchase_order_id);
-        $pricelistId = (string) ($payload['pricelist_id'] ?? $existing->pricelist_id ?? '');
-
-        $purchaseOrder = $purchaseOrderId !== '' ? $this->purchaseOrderRepo->findById($purchaseOrderId) : null;
-        $pricelist = $pricelistId !== '' ? Pricelist::query()->find($pricelistId) : null;
-
-        if ($purchaseOrder && $pricelist && $purchaseOrder->vendor_id !== $pricelist->vendor_id) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Vendor pada pricelist tidak sesuai dengan vendor pada purchase order',
-                'errors' => [
-                    'pricelist_id' => ['Vendor pada pricelist tidak sesuai dengan vendor pada purchase order'],
-                ],
-            ], 422);
-        }
-
-        if ($pricelist) {
-            $payload['pricelist_id'] = $pricelist->id;
-            $payload['product_id'] = $pricelist->product_id;
-            $payload['unit_price'] = (string) $pricelist->price;
-        }
 
         $payload = $this->calculator->applyTotalPrice($payload, $existing);
         $item = $this->repo->update($purchaseOrderItem, $payload);

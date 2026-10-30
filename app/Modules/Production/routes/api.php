@@ -1,5 +1,6 @@
 <?php
 
+use App\Modules\Production\FinishedGoodsReceipt\Controllers\FinishedGoodsReceiptController;
 use App\Modules\Production\GoodReceipt\Controllers\GoodReceiptController;
 use App\Modules\Production\GoodReceipt\Controllers\GoodReceiptItemsController;
 use App\Modules\Production\PurchaseOrder\Controllers\PurchaseOrderController;
@@ -37,3 +38,9 @@ Route::get('good-receipt-items/{goodReceiptItem}', [GoodReceiptItemsController::
 Route::match(['put', 'patch'], 'good-receipt-items/{goodReceiptItem}', [GoodReceiptItemsController::class, 'update']);
 Route::delete('good-receipt-items/{goodReceiptItem}', [GoodReceiptItemsController::class, 'destroy']);
 Route::post('good-receipt-items', [GoodReceiptItemsController::class, 'store']);
+
+Route::get('finished-goods-receipts', [FinishedGoodsReceiptController::class, 'index']);
+Route::post('finished-goods-receipts', [FinishedGoodsReceiptController::class, 'store']);
+Route::get('finished-goods-receipts/{finishedGoodsReceipt}', [FinishedGoodsReceiptController::class, 'show']);
+Route::match(['put', 'patch'], 'finished-goods-receipts/{finishedGoodsReceipt}', [FinishedGoodsReceiptController::class, 'update']);
+Route::delete('finished-goods-receipts/{finishedGoodsReceipt}', [FinishedGoodsReceiptController::class, 'destroy']);

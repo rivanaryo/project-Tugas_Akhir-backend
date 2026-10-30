@@ -12,10 +12,13 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Invoice extends Model
 {
     use HasUuids;
+
     protected $table = 'invoices';
+
     protected $fillable = [
         'invoice_number',
         'invoice_date',
+        'due_date',
         'customer_id',
         'sales_order_id',
         'type',
@@ -28,6 +31,7 @@ class Invoice extends Model
     protected $casts = [
         'id' => 'string',
         'invoice_date' => 'date',
+        'due_date' => 'date',
     ];
 
     public function customer(): BelongsTo
@@ -39,10 +43,9 @@ class Invoice extends Model
     {
         return $this->hasMany(InvoiceItem::class, 'invoice_id');
     }
-    
+
     public function salesOrder(): BelongsTo
     {
         return $this->belongsTo(SalesOrder::class, 'sales_order_id');
     }
-    
 }

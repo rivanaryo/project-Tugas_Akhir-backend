@@ -9,26 +9,31 @@ use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
-    public function __construct(private readonly DashboardService $service)
-    {
-    }
+    public function __construct(private readonly DashboardService $service) {}
 
     public function index(Request $request): JsonResponse
     {
-        $page = (int) $request->get('page', 1);
-        $perPage = (int) $request->get('per_page', 10);
-        $woLimit = (int) $request->get('active_work_orders_limit', 10);
+        $validated = $request->validate([
+            'page' => 'sometimes|integer|min:1',
+            'per_page' => 'sometimes|integer|min:1|max:100',
+            'active_work_orders_limit' => 'sometimes|integer|min:1|max:100',
+        ]);
 
-        $kpi = $this->service->getKpi();
-        $pipeline = $this->service->getPipeline($page, $perPage);
-        $activeWorkOrders = $this->service->getActiveWorkOrders($woLimit);
+        $page = (int) ($validated['page'] ?? 1);
+        $perPage = (int) ($validated['per_page'] ?? 10);
+        $woLimit = (int) ($validated['active_work_orders_limit'] ?? 4);
+
+        $receivables = $this->service->getReceivableSummary();
+        $workOrders = $this->service->getActiveWorkOrders($woLimit);
 
         return response()->json([
             'success' => true,
             'data' => [
-                'kpi' => $kpi,
-                'pipeline' => $pipeline,
-                'active_work_orders' => $activeWorkOrders,
+                'kpi' => $this->service->getKpi($receivables),
+                'pipeline_summary' => $receivables,
+                'pipeline' => $this->service->getPipeline($page, $perPage),
+                'active_work_orders' => $workOrders['items'],
+                'active_work_orders_total' => $workOrders['total'],
             ],
         ]);
     }
@@ -43,12 +48,17 @@ class DashboardController extends Controller
 
     public function pipeline(Request $request): JsonResponse
     {
-        $page = (int) $request->get('page', 1);
-        $perPage = (int) $request->get('per_page', 10);
+        $validated = $request->validate([
+            'page' => 'sometimes|integer|min:1',
+            'per_page' => 'sometimes|integer|min:1|max:100',
+        ]);
 
         return response()->json([
             'success' => true,
-            'data' => $this->service->getPipeline($page, $perPage),
+            'data' => $this->service->getPipeline(
+                (int) ($validated['page'] ?? 1),
+                (int) ($validated['per_page'] ?? 10),
+            ),
         ]);
     }
 }

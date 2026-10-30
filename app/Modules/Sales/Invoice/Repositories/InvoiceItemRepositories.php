@@ -1,5 +1,7 @@
-<?php 
+<?php
+
 namespace App\Modules\Sales\Invoice\Repositories;
+
 use App\Modules\Sales\Invoice\Models\InvoiceItem;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -8,9 +10,7 @@ use Illuminate\Support\Facades\DB;
 
 class InvoiceItemRepositories
 {
-    public function __construct(private readonly InvoiceItem $model)
-    {
-    }
+    public function __construct(private readonly InvoiceItem $model) {}
 
     public function paginate(array $filters = [], int $perPage = 15): LengthAwarePaginator
     {
@@ -46,6 +46,7 @@ class InvoiceItemRepositories
         return DB::transaction(function () use ($id, $payload): InvoiceItem {
             $invoiceItem = $this->findOrFail($id);
             $invoiceItem->update($payload);
+
             return $invoiceItem->fresh() ?? $invoiceItem;
         });
     }
@@ -59,7 +60,7 @@ class InvoiceItemRepositories
     {
         $query = $this->model
             ->newQuery()
-            ->with(['invoice.customer', 'salesOrderItem.product',])
+            ->with(['invoice.customer', 'salesOrderItem.product'])
             ->latest('created_at');
 
         return $this->applyFilters($query, $filters);

@@ -1,5 +1,7 @@
-<?php 
+<?php
+
 namespace App\Modules\Sales\Invoice\DTOs;
+
 use App\Modules\Sales\Invoice\Request\StoreInvoiceRequest;
 use App\Modules\Sales\Invoice\Request\UpdateInvoiceRequest;
 
@@ -18,6 +20,7 @@ class InvoiceDTO
     public static function fromRequest(StoreInvoiceRequest $request): self
     {
         $validated = $request->validated();
+
         return new self(
             invoice_number: $validated['invoice_number'] ?? null,
             invoice_date: $validated['invoice_date'] ?? null,
@@ -32,6 +35,7 @@ class InvoiceDTO
     public static function fromUpdateRequest(UpdateInvoiceRequest $request, string $id): self
     {
         $validated = $request->validated();
+
         return new self(
             invoice_number: $validated['invoice_number'] ?? null,
             invoice_date: $validated['invoice_date'] ?? null,

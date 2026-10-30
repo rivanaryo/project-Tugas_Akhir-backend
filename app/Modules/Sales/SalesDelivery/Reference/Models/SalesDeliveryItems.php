@@ -24,6 +24,13 @@ class SalesDeliveryItems extends Model
         'qty_delivered' => 'integer',
     ];
 
+    protected $appends = ['size'];
+
+    public function getSizeAttribute(): ?string
+    {
+        return $this->salesOrderItem?->size;
+    }
+
     public function salesDelivery()
     {
         return $this->belongsTo(SalesDelivery::class, 'sales_delivery_id');

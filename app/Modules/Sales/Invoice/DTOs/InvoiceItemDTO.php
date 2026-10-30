@@ -1,6 +1,7 @@
-<?php 
+<?php
+
 namespace App\Modules\Sales\Invoice\DTOs;
-use App\Modules\Sales\Invoice\Models\InvoiceItem;
+
 use App\Modules\Sales\Invoice\Request\StoreInvoiceItemRequest;
 use App\Modules\Sales\Invoice\Request\UpdateInvoiceItemRequest;
 
@@ -17,6 +18,7 @@ class InvoiceItemDTO
     public static function fromRequest(StoreInvoiceItemRequest $request, string $invoiceId): self
     {
         $validated = $request->validated();
+
         return new self(
             invoice_id: $invoiceId,
             sales_order_item_id: $validated['sales_order_item_id'],
@@ -29,6 +31,7 @@ class InvoiceItemDTO
     public static function fromUpdateRequest(UpdateInvoiceItemRequest $request, string $id): self
     {
         $validated = $request->validated();
+
         return new self(
             invoice_id: $validated['invoice_id'],
             sales_order_item_id: $validated['sales_order_item_id'],

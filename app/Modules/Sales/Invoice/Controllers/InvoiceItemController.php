@@ -3,14 +3,14 @@
 namespace App\Modules\Sales\Invoice\Controllers;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
+use App\Modules\Sales\Invoice\DTOs\InvoiceItemDTO;
 use App\Modules\Sales\Invoice\Repositories\InvoiceItemRepositories;
 use App\Modules\Sales\Invoice\Repositories\InvoiceRepositories;
 use App\Modules\Sales\Invoice\Request\StoreInvoiceItemRequest;
 use App\Modules\Sales\Invoice\Request\UpdateInvoiceItemRequest;
-use App\Modules\Sales\Invoice\DTOs\InvoiceItemDTO;
 use App\Modules\Sales\Invoice\Services\InvoiceCalculator;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class InvoiceItemController extends Controller
 {
@@ -18,9 +18,7 @@ class InvoiceItemController extends Controller
         private readonly InvoiceItemRepositories $repo,
         private readonly InvoiceRepositories $invoiceRepo,
         private readonly InvoiceCalculator $calculator,
-    )
-    {
-    }
+    ) {}
 
     public function index(string $invoiceId, Request $request): JsonResponse
     {
@@ -42,7 +40,7 @@ class InvoiceItemController extends Controller
         $payload = $dto->toArray();
 
         // Optional: Add validation logic here if needed, similar to PurchaseOrderItemsController
-        
+
         $payload = $this->calculator->applyTotalPrice($payload);
         $item = $this->repo->create($payload);
 
@@ -59,7 +57,7 @@ class InvoiceItemController extends Controller
     {
         $item = $this->repo->findById($id);
 
-        if (!$item) {
+        if (! $item) {
             return response()->json([
                 'success' => false,
                 'message' => 'Item invoice tidak ditemukan',
@@ -77,7 +75,7 @@ class InvoiceItemController extends Controller
     {
         $existing = $this->repo->findById($id);
 
-        if (!$existing) {
+        if (! $existing) {
             return response()->json([
                 'success' => false,
                 'message' => 'Item invoice tidak ditemukan',
@@ -103,7 +101,7 @@ class InvoiceItemController extends Controller
     {
         $existing = $this->repo->findById($id);
 
-        if (!$existing) {
+        if (! $existing) {
             return response()->json([
                 'success' => false,
                 'message' => 'Item invoice tidak ditemukan',

@@ -17,9 +17,12 @@ class WorkOrder extends Model
     protected $fillable = [
         'wo_number',
         'sales_order_id',
+        'sales_order_item_id',
         'product_id',
         'tech_pack_id',
         'quantity',
+        'qty_completed',
+        'qty_reject',
         'stage',
         'status',
         'start_date',
@@ -30,6 +33,8 @@ class WorkOrder extends Model
 
     protected $casts = [
         'quantity' => 'integer',
+        'qty_completed' => 'integer',
+        'qty_reject' => 'integer',
         'progress' => 'integer',
         'start_date' => 'date',
         'due_date' => 'date',
@@ -38,6 +43,11 @@ class WorkOrder extends Model
     public function salesOrder()
     {
         return $this->belongsTo(SalesOrder::class, 'sales_order_id');
+    }
+
+    public function salesOrderItem()
+    {
+        return $this->belongsTo(\App\Modules\Sales\SalesOrder\Reference\Models\SalesOrderItems::class, 'sales_order_item_id');
     }
 
     public function product()

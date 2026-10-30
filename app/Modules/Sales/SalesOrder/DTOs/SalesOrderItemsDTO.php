@@ -13,6 +13,7 @@ class SalesOrderItemsDTO
 {
     public function __construct(
         public readonly string $product_id,
+        public readonly ?string $size,
         public readonly int $quantity,
         public readonly float $unit_price,
         public readonly float $tax_rate,
@@ -25,6 +26,7 @@ class SalesOrderItemsDTO
     {
         return [
             'product_id' => $this->product_id,
+            'size' => $this->size,
             'quantity' => $this->quantity,
             'unit_price' => $this->unit_price,
             'tax_rate' => $this->tax_rate,
@@ -49,6 +51,7 @@ class SalesOrderItemsDTO
 
         return new self(
             product_id: $validated['product_id'],
+            size: $validated['size'] ?? null,
             quantity: $quantity,
             unit_price: $unitPrice,
             tax_rate: $taxRate,
@@ -73,6 +76,7 @@ class SalesOrderItemsDTO
 
         return new self(
             product_id: $validated['product_id'],
+            size: $validated['size'] ?? null,
             quantity: $quantity,
             unit_price: $unitPrice,
             tax_rate: $taxRate,

@@ -3,18 +3,17 @@
 namespace App\Modules\Sales\Invoice\Controllers;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
+use App\Modules\Finance\CustomerPayment\Models\CustomerPayment;
+use App\Modules\Sales\Invoice\DTOs\InvoiceDTO;
 use App\Modules\Sales\Invoice\Repositories\InvoiceRepositories;
 use App\Modules\Sales\Invoice\Request\StoreInvoiceRequest;
 use App\Modules\Sales\Invoice\Request\UpdateInvoiceRequest;
-use App\Modules\Sales\Invoice\DTOs\InvoiceDTO;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class InvoiceController extends Controller
 {
-    public function __construct(private readonly InvoiceRepositories $repo)
-    {
-    }
+    public function __construct(private readonly InvoiceRepositories $repo) {}
 
     public function index(Request $request): JsonResponse
     {
@@ -45,7 +44,7 @@ class InvoiceController extends Controller
     {
         $invoice = $this->repo->findById($id);
 
-        if (!$invoice) {
+        if (! $invoice) {
             return response()->json([
                 'success' => false,
                 'message' => 'Invoice tidak ditemukan',
@@ -53,7 +52,7 @@ class InvoiceController extends Controller
         }
 
         $grandTotal = (float) $invoice->grand_total;
-        $paid = (float) \App\Modules\Finance\CustomerPayment\Models\CustomerPayment::where('sales_order_id', $invoice->sales_order_id)
+        $paid = (float) CustomerPayment::where('sales_order_id', $invoice->sales_order_id)
             ->where('status', 'paid')
             ->sum('amount');
 
@@ -72,7 +71,7 @@ class InvoiceController extends Controller
     {
         $invoice = $this->repo->findById($id);
 
-        if (!$invoice) {
+        if (! $invoice) {
             return response()->json([
                 'success' => false,
                 'message' => 'Invoice tidak ditemukan',
@@ -90,7 +89,7 @@ class InvoiceController extends Controller
     {
         $existing = $this->repo->findById($id);
 
-        if (!$existing) {
+        if (! $existing) {
             return response()->json([
                 'success' => false,
                 'message' => 'Invoice tidak ditemukan',
@@ -111,7 +110,7 @@ class InvoiceController extends Controller
     {
         $existing = $this->repo->findById($id);
 
-        if (!$existing) {
+        if (! $existing) {
             return response()->json([
                 'success' => false,
                 'message' => 'Invoice tidak ditemukan',

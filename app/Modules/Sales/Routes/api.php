@@ -7,7 +7,24 @@ use App\Modules\Sales\SalesDelivery\Controllers\SalesDeliveryController;
 use App\Modules\Sales\SalesDelivery\Controllers\SalesDeliveryItemsController;
 use App\Modules\Sales\SalesOrder\Controllers\SalesOrderController;
 use App\Modules\Sales\SalesOrder\Controllers\SalesOrderItemsController;
+use App\Modules\Sales\SalesQuotation\Controllers\SalesQuotationController;
+use App\Modules\Sales\SalesQuotation\Controllers\SalesQuotationItemsController;
 use Illuminate\Support\Facades\Route;
+
+// Sales Quotation routes
+Route::get('sales-quotations', [SalesQuotationController::class, 'index']);
+Route::post('sales-quotations', [SalesQuotationController::class, 'store']);
+Route::get('sales-quotations/{id}', [SalesQuotationController::class, 'show']);
+Route::post('sales-quotations/{id}/convert-to-order', [SalesQuotationController::class, 'convertToOrder']);
+Route::match(['put', 'patch'], 'sales-quotations/{id}', [SalesQuotationController::class, 'update']);
+Route::delete('sales-quotations/{id}', [SalesQuotationController::class, 'destroy']);
+
+// Sales Quotation Items routes
+Route::get('sales-quotations/{salesQuotationId}/items', [SalesQuotationItemsController::class, 'index']);
+Route::post('sales-quotations/{salesQuotationId}/items', [SalesQuotationItemsController::class, 'store']);
+Route::get('sales-quotations/{salesQuotationId}/items/{id}', [SalesQuotationItemsController::class, 'show']);
+Route::match(['put', 'patch'], 'sales-quotations/{salesQuotationId}/items/{id}', [SalesQuotationItemsController::class, 'update']);
+Route::delete('sales-quotations/{salesQuotationId}/items/{id}', [SalesQuotationItemsController::class, 'destroy']);
 
 Route::get('sales-orders', [SalesOrderController::class, 'index']);
 Route::post('sales-orders', [SalesOrderController::class, 'store']);

@@ -1,7 +1,9 @@
-<?php 
+<?php
+
 namespace App\Modules\Sales\Invoice\Services;
-use App\Modules\Sales\Invoice\Models\InvoiceItem;
+
 use App\Modules\Sales\Invoice\Models\Invoice;
+use App\Modules\Sales\Invoice\Models\InvoiceItem;
 use Illuminate\Support\Facades\DB;
 
 class InvoiceCalculator
@@ -9,7 +11,7 @@ class InvoiceCalculator
     public function updateInvoiceHeaderTotals(string $invoiceId): void
     {
         $items = DB::table('invoice_items')->where('invoice_id', $invoiceId)->get();
-        
+
         $subtotal = '0.00';
         $taxTotal = '0.00';
 
@@ -81,6 +83,7 @@ class InvoiceCalculator
 
         if (function_exists('bcmul') && function_exists('bcdiv')) {
             $rate = (string) bcdiv($taxRate, '100', 6);
+
             return (string) bcmul($subtotal, $rate, 2);
         }
         $rate = ((float) $taxRate) / 100;

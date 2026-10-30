@@ -7,6 +7,7 @@ use App\Modules\Sales\SalesDelivery\DTOs\SalesDeliveryDTO;
 use App\Modules\Sales\SalesDelivery\Repositories\SalesDeliveryRepositories;
 use App\Modules\Sales\SalesDelivery\Request\StoreSalesDeliveryRequest;
 use App\Modules\Sales\SalesDelivery\Request\UpdateSalesDeliveryRequest;
+use App\Modules\Sales\SalesDelivery\Services\SalesDeliveryStockService;
 use Illuminate\Http\JsonResponse;
 
 use Illuminate\Http\Request;
@@ -15,6 +16,7 @@ class SalesDeliveryController extends Controller
 {
     public function __construct(
         private readonly SalesDeliveryRepositories $repo,
+        private readonly SalesDeliveryStockService $stockService,
     ) {
     }
 
@@ -62,13 +64,22 @@ class SalesDeliveryController extends Controller
     public function update(UpdateSalesDeliveryRequest $request, string $id) : JsonResponse
     {
         $salesDeliveryDTO = SalesDeliveryDTO::fromUpdateRequest($request, $id);
-        $salesDelivery = $this->repo->update($id, $salesDeliveryDTO->toArray());
-    
-        if (!$salesDelivery) {
+        $existing = $this->repo->findById($id);
+
+        if (!$existing) {
             return response()->json([
                 'success' => false,
                 'message' => 'Sales delivery not found',
             ], 404);
+        }
+
+        $oldStatus = $existing->status;
+        $salesDelivery = $this->repo->update($id, $salesDeliveryDTO->toArray());
+
+        if ($oldStatus !== 'delivered' && $salesDelivery->status === 'delivered') {
+            $this->stockService->process($salesDelivery);
+        } elseif ($oldStatus === 'delivered' && $salesDelivery->status !== 'delivered') {
+            $this->stockService->reverse($salesDelivery);
         }
 
         return response()->json([
@@ -80,6 +91,11 @@ class SalesDeliveryController extends Controller
 
     public function destroy(string $id) : JsonResponse
     {
+        $existing = $this->repo->findById($id);
+        if ($existing && $existing->status === 'delivered') {
+            $this->stockService->reverse($existing);
+        }
+
         $deleted = $this->repo->delete($id);
     
         if (!$deleted) {

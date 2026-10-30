@@ -23,8 +23,9 @@ class UpdateInvoiceRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'invoice_number' => 'sometimes|string|unique:invoices,invoice_number,' . $this->route('id'),
+            'invoice_number' => 'sometimes|string|unique:invoices,invoice_number,'.$this->route('id'),
             'invoice_date' => 'sometimes|date',
+            'due_date' => 'sometimes|nullable|date',
             'customer_id' => 'sometimes|exists:m_customer,id',
             'sales_order_id' => 'sometimes|exists:sales_order,id',
             'type' => 'sometimes|in:dp,pelunasan',

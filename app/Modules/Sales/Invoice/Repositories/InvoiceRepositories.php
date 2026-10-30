@@ -1,13 +1,16 @@
-<?php 
+<?php
 
 namespace App\Modules\Sales\Invoice\Repositories;
 
+use App\Modules\Finance\CustomerPayment\Models\CustomerPayment;
 use App\Modules\Sales\Invoice\Models\Invoice;
 use App\Modules\Sales\Invoice\Models\InvoiceItem;
 use App\Modules\Sales\Invoice\Services\InvoiceCalculator;
+use App\Modules\Sales\SalesOrder\Models\SalesOrder;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class InvoiceRepositories
@@ -15,8 +18,7 @@ class InvoiceRepositories
     public function __construct(
         private readonly Invoice $model,
         private readonly InvoiceCalculator $calculator,
-    ) {
-    }
+    ) {}
 
     public function paginate(array $filters = [], int $perPage = 15): LengthAwarePaginator
     {
@@ -48,8 +50,13 @@ class InvoiceRepositories
             unset($payload['items']);
 
             $salesOrder = null;
-            if (!empty($payload['sales_order_id'])) {
-                $salesOrder = \App\Modules\Sales\SalesOrder\Models\SalesOrder::find($payload['sales_order_id']);
+            if (! empty($payload['sales_order_id'])) {
+                $salesOrder = SalesOrder::find($payload['sales_order_id']);
+            }
+
+            // Default jatuh tempo: 30 hari setelah tanggal invoice.
+            if (empty($payload['due_date']) && ! empty($payload['invoice_date'])) {
+                $payload['due_date'] = Carbon::parse($payload['invoice_date'])->addDays(30)->toDateString();
             }
 
             // Initialize totals to 0, will be calculated after items creation
@@ -73,9 +80,9 @@ class InvoiceRepositories
             }
 
             // Auto-adjust totals for DP/pelunasan without explicit items
-            if (($items === null || !is_array($items)) && $salesOrder) {
+            if (($items === null || ! is_array($items)) && $salesOrder) {
                 $grandTotal = (float) $salesOrder->grand_total;
-                $paid = (float) \App\Modules\Finance\CustomerPayment\Models\CustomerPayment::where('sales_order_id', $salesOrder->id)
+                $paid = (float) CustomerPayment::where('sales_order_id', $salesOrder->id)
                     ->where('status', 'paid')
                     ->sum('amount');
                 $remaining = max(0, $grandTotal - $paid);
@@ -99,6 +106,7 @@ class InvoiceRepositories
         return DB::transaction(function () use ($id, $payload): Invoice {
             $invoice = $this->findOrFail($id);
             $invoice->update($payload);
+
             return $invoice->fresh() ?? $invoice;
         });
     }

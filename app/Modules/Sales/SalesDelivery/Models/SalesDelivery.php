@@ -27,6 +27,11 @@ class SalesDelivery extends Model
     {
         return $this->hasMany(SalesDeliveryItems::class, 'sales_delivery_id');
     }
+
+    public function stockMovements()
+    {
+        return $this->morphMany(\App\Modules\Inventory\StockMovement\Models\StockMovement::class, 'referenceable');
+    }
     
     public function customer() {
         return $this->belongsTo(Customer::class, 'customer_id');

@@ -126,6 +126,7 @@ class WorkOrderController extends Controller
                 $wo = WorkOrder::create([
                     'wo_number' => 'SPK-'.strtoupper(Str::random(4)).'-'.str_pad((string) random_int(1, 999), 3, '0', STR_PAD_LEFT),
                     'sales_order_id' => $salesOrder->id,
+                    'sales_order_item_id' => $item->id,
                     'product_id' => $item->product_id,
                     'quantity' => $item->quantity,
                     'stage' => 'cutting',

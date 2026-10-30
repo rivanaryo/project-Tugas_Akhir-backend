@@ -2,8 +2,9 @@
 
 namespace App\Modules\Sales\Invoice\Reference\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Model;
+use App\Modules\Sales\SalesOrder\Reference\Models\SalesOrderItems;
 
 class InvoiceItem extends Model
 {
@@ -20,7 +21,20 @@ class InvoiceItem extends Model
         'tax_amount',
         'total_price',
     ];
+
     protected $casts = [
         'id' => 'string',
     ];
+
+    protected $appends = ['size'];
+
+    public function salesOrderItem()
+    {
+        return $this->belongsTo(SalesOrderItems::class, 'sales_order_item_id');
+    }
+
+    public function getSizeAttribute(): ?string
+    {
+        return $this->salesOrderItem?->size;
+    }
 }

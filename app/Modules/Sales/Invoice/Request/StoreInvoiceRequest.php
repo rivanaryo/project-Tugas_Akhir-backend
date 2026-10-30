@@ -25,6 +25,7 @@ class StoreInvoiceRequest extends FormRequest
         return [
             'invoice_number' => 'required|unique:invoices,invoice_number',
             'invoice_date' => 'required|date',
+            'due_date' => 'nullable|date|after_or_equal:invoice_date',
             'customer_id' => 'required|exists:m_customer,id',
             'sales_order_id' => 'required|exists:sales_order,id',
             'type' => 'required|in:dp,pelunasan',

@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use App\Modules\MasterData\ManagementCustomers\Models\Customer;
 use App\Modules\Sales\SalesOrder\Reference\Models\SalesOrderItems;
+use App\Modules\Sales\SalesQuotation\Models\SalesQuotation;
 use App\Modules\Sales\SalesDelivery\Models\SalesDelivery;
 use App\Modules\Sales\Invoice\Models\Invoice;
 use App\Modules\Inventory\StockMovement\Models\StockMovement;
@@ -19,6 +20,7 @@ class SalesOrder extends Model
     protected $fillable = [
         'order_number',
         'customer_id',
+        'sales_quotation_id',
         'order_date',
         'status',
         'subtotal',
@@ -36,6 +38,11 @@ class SalesOrder extends Model
     public function customer()
     {
         return $this->belongsTo(Customer::class, 'customer_id');
+    }
+
+    public function salesQuotation()
+    {
+        return $this->belongsTo(SalesQuotation::class, 'sales_quotation_id');
     }
 
     public function items()

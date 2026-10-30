@@ -4,6 +4,7 @@ namespace App\Modules\Sales\SalesOrder\Request;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreSalesOrderItemsRequest extends FormRequest
 {
@@ -24,6 +25,7 @@ class StoreSalesOrderItemsRequest extends FormRequest
     {
         return [
             'product_id' => 'required|uuid|exists:m_products,id',
+            'size' => ['required', 'string', Rule::exists('size_charts', 'size')->where('product_id', $this->input('product_id'))],
             'quantity' => 'required|integer|min:1',
             'unit_price' => 'required|numeric|min:0',
             'tax_rate' => 'nullable|numeric|min:0|max:100',
